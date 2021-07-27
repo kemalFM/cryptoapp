@@ -2,37 +2,38 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {NavigationCommands} from 'react-native-navigation-hooks/dist/helpers/createNavigationCommands';
 import {TransactionType} from '../../Repositories/WalletType';
-import {TransactionInnerDetails} from '../../Repositories/TransactionInfoType';
 import {ReadTransactionInfo} from '../../FileOperations/ReadTransactionInfo';
 import {useWallet} from '../../State/WalletState';
+import DogePriceFixer from "./DogePriceFixer";
 
 export default function Transaction(props: {
   status: boolean;
   navigation: NavigationCommands;
   transaction: TransactionType;
 }) {
-  const [transactionInfo, setTransactionInfo] =
-    useState<TransactionInnerDetails | null>(null);
   const [totalInUSD, setTotalInUSD] = useState(0);
   const walletID = useWallet(state => state.id);
 
   useEffect(() => {
     ReadTransactionInfo(props.transaction.hash).then(response => {
       if (response !== false) {
-        setTransactionInfo(response);
-
         let totalUS = 0;
-        response.inputs
-          .filter(inputList => inputList.recipient === walletID)
-          .forEach(input => (totalUS -= input.value_usd));
-        response.outputs
-          .filter(outputList => outputList.recipient === walletID)
-          .forEach(output => (totalUS += output.value_usd));
 
-        setTotalInUSD(totalUS);
+        console.log(props.transaction.hash);
+        console.log(walletID);
+        console.log(props.transaction.balance_change, response.transaction.output_total, response.transaction.output_total_usd)
+        setTotalInUSD(props.transaction.balance_change * (response.transaction.output_total_usd / Number(DogePriceFixer(response.transaction.output_total, true))))
+        // response.inputs
+        //   .filter(inputList => inputList.recipient === walletID)
+        //   .forEach(input => (totalUS -= input.value_usd));
+        // response.outputs
+        //   .filter(outputList => outputList.recipient === walletID)
+        //   .forEach(output => (totalUS += output.value_usd));
+        //
+        // setTotalInUSD(response.transaction.output_total_usd - response.transaction.input_total_usd);
       }
     });
-  }, [walletID]);
+  }, [props.transaction.hash, walletID]);
 
   return (
     <TouchableOpacity
@@ -51,7 +52,14 @@ export default function Transaction(props: {
         <Text style={styles.receiveSendText}>Block ID</Text>
         <Text style={styles.transactionID}>{props.transaction.block_id}</Text>
       </View>
-      <View style={styles.transactionAmountHolder}>
+      <View
+        style={
+          (props.transaction.balance_change.toString().length +
+            totalInUSD.toString().length) >=
+          12
+            ? styles.transactionAmountHolderLong
+            : styles.transactionAmountHolder
+        }>
         <View style={styles.transactionTotalAndCurrencyHolder}>
           <Text style={styles.transactionAmount}>
             {props.transaction.balance_change.toFixed(2)}
@@ -86,6 +94,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  transactionAmountHolderLong: {
+    flexDirection: 'column',
+  },
   transactionTotalAndCurrencyHolder: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -118,11 +129,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   holderPlus: {
-    borderLeftColor: '#248E38',
+    borderLeftColor: '#80BC89',
     borderLeftWidth: 10,
   },
   holderMinus: {
-    borderLeftColor: '#D94D57',
+    borderLeftColor: '#CE3646',
     borderLeftWidth: 10,
   },
   holder: {

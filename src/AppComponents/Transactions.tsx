@@ -1,5 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import { Alert, FlatList, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  FlatList,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import {Options} from 'react-native-navigation/lib/src/interfaces/Options';
 import TopBalance from './Components/TopBalance';
 import Transaction from './Components/Transaction';
@@ -17,38 +25,81 @@ type Props = {
 
 function Transactions(props: Props) {
   const navigation = useNavigation(props.componentId);
-  useNavigationSearchBarUpdate(console.log, props.componentId);
+
   const walletState = useWallet();
+  const [beforeSearch, setBeforeSearch] = useState<TransactionType[]>([]);
   const [lastTransactions, setLastTransactions] = useState<TransactionType[]>(
     [],
   );
 
+
+  useEffect(() => {
+
+    navigation.mergeOptions({
+      topBar: {
+        rightButtons: [
+          {
+            id: 'de.kfm.TopQRCodeScanRight',
+            component: {
+              name: 'de.kfm.TopQRCodeScan',
+              passProps: {
+                navigation: navigation
+              }
+            }
+          }
+        ]
+      }
+    })
+
+  }, []);
+
   useEffect(() => {
     ReadTransactions(walletState.id).then(response => {
       if (response !== false) {
-        setLastTransactions(
-          response.map(transaction => {
-            const balanceLength = transaction.balance_change.toString().length;
-            const splitBalance =
-              transaction.balance_change
-                .toString()
-                .slice(0, balanceLength - 8) +
-              '.' +
-              transaction.balance_change.toString().slice(balanceLength - 8);
-            return {
-              ...transaction,
-              balance_change: Number(splitBalance),
-            };
-          }),
-        );
+        const transactionList = response.map(transaction => {
+          const balanceLength = transaction.balance_change.toString().length;
+          const splitBalance =
+            transaction.balance_change.toString().slice(0, balanceLength - 8) +
+            '.' +
+            transaction.balance_change.toString().slice(balanceLength - 8);
+          return {
+            ...transaction,
+            balance_change: Number(splitBalance),
+          };
+        });
+        setLastTransactions(transactionList);
+        setBeforeSearch(transactionList);
       }
     });
   }, []);
 
+  useNavigationSearchBarUpdate(text => {
+    if (text.text.length === 0) {
+      setLastTransactions(beforeSearch);
+      return;
+    }
+    const filtered = beforeSearch.filter(transaction => {
+      return transaction.hash === text.text;
+    });
+    setLastTransactions(filtered);
+  }, props.componentId);
+
   return (
     <SafeAreaView>
       <View>
-        <FlatList style={styles.scrollViewStyle} data={lastTransactions} renderItem={(item) => <Transaction status={item.item.balance_change >= 0} navigation={navigation} transaction={item.item} key={item.item.hash} />} />
+        <FlatList
+          style={styles.scrollViewStyle}
+          data={lastTransactions}
+          keyExtractor={item => item.hash}
+          renderItem={item => (
+            <Transaction
+              status={item.item.balance_change >= 0}
+              navigation={navigation}
+              transaction={item.item}
+              key={item.item.hash}
+            />
+          )}
+        />
       </View>
     </SafeAreaView>
   );

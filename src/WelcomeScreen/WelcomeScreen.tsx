@@ -17,11 +17,7 @@ import {LoadTransactionsRoute } from "../../AppRoutes";
 import { useWallet } from "../State/WalletState";
 import { getWalletID, storeWalletID } from "../State/WalletStore";
 
-interface Props {
-  componentId: string;
-}
-
-function WelcomeScreen(props: Props) {
+function WelcomeScreen() {
   const [walletID, setWalletID] = useState('');
 
   const walletState = useWallet();
@@ -37,6 +33,7 @@ function WelcomeScreen(props: Props) {
       const checkWallet = await ValidateWallet(walletString);
       if (walletIDQR !== undefined) {
         if (checkWallet) {
+          await storeWalletID(walletString);
           walletState.setWallet(walletString);
           await setRoot(LoadTransactionsRoute);
         }
@@ -58,6 +55,14 @@ function WelcomeScreen(props: Props) {
     [walletID],
   );
 
+
+  useEffect(() => {
+
+    if(walletID.length === 34){
+      checkWalletID();
+    }
+
+  }, [walletID]);
 
   const checkIfAlreadyLoggedIN = useCallback(async () => {
 

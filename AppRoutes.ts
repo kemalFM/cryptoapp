@@ -15,25 +15,10 @@ export const AppComponentRoutes: LayoutRoot = {
               },
             ],
             options: {
-              topBar: {
-                searchBar: {
-                  visible: false,
-                  hideOnScroll: false,
-                  hideTopBarOnFocus: false
-                }
-              },
               bottomTab: {
                 text: 'Home',
                 icon: require('./src/assets/home.png'),
-                selectedTextColor: "#F06E22",
-                iconColor: "#A0A0A0",
-                selectedIconColor: "#F06E22",
-                textColor: "#A0A0A0"
-              },
-              layout: {
-                backgroundColor: '#fff',
-                componentBackgroundColor: '#fff',
-              },
+              }
             },
           },
         },
@@ -58,14 +43,6 @@ export const AppComponentRoutes: LayoutRoot = {
               bottomTab: {
                 text: 'Transactions',
                 icon: require('./src/assets/money.png'),
-                selectedTextColor: "#F06E22",
-                iconColor: "#A0A0A0",
-                selectedIconColor: "#F06E22",
-                textColor: "#A0A0A0"
-              },
-              layout: {
-                backgroundColor: '#fff',
-                componentBackgroundColor: '#fff',
               },
             },
           },
@@ -86,23 +63,12 @@ export const AppComponentRoutes: LayoutRoot = {
                   visible: true,
                   hideOnScroll: true,
                   hideTopBarOnFocus: true
-                },
-                background: {
-                  color: "#fff",
                 }
               },
               bottomTab: {
                 text: 'Logout',
                 icon: require('./src/assets/logout.png'),
-                selectedTextColor: "#F06E22",
-                iconColor: "#A0A0A0",
-                selectedIconColor: "#F06E22",
-                textColor: "#A0A0A0",
                 selectTabOnPress: false,
-              },
-              layout: {
-                backgroundColor: '#fff',
-                componentBackgroundColor: '#fff',
               },
             },
           },

@@ -146,7 +146,7 @@ function LoadingTransactions() {
           if (transactionList === false) {
             return;
           }
-          transactionList.splice(1000, transactionList.length);
+          transactionList.splice(100, transactionList.length);
           onlyHashList = transactionList.map(transaction => {
             return transaction.hash;
           });

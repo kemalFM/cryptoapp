@@ -8,6 +8,7 @@ import CloseSVG from '../assets/close.svg';
 type Props = {
   componentId: string;
   onBarCodeRead: (data: string) => boolean;
+  type?: string;
 };
 
 function QRCodeScanner(props: Props) {
@@ -29,7 +30,7 @@ function QRCodeScanner(props: Props) {
       if (!readStatus) {
         await Alert.alert(
           'Wallet Not Found',
-          'Sorry we could not verify your WalletID. Please try again',
+          `Sorry we could not verify your ${props.type === undefined ? 'Wallet ID' : props.type}. Please try again`,
           [{text: 'OK', onPress: () => setReading(true)}],
           {cancelable: false},
         );

@@ -1,14 +1,15 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {Options} from 'react-native-navigation';
 import {TransactionType} from '../Repositories/WalletType';
 import {
   InOutType,
-  TransactionInfo,
-  TransactionInfoType,
+  TransactionInfo
 } from '../Repositories/TransactionInfoType';
-import { GetTransactionInfo } from '../Repositories/GetTransactionInfo';
+import {GetTransactionInfo} from '../Repositories/GetTransactionInfo';
 import {useWallet} from '../State/WalletState';
+import {ReadTransactionInfo} from '../FileOperations/ReadTransactionInfo';
+import {SaveTransactionInfo} from '../FileOperations/SaveTransactionInfo';
 
 type Props = {
   componentId: string;
@@ -23,9 +24,15 @@ function TransactionDetails(props: Props) {
   const [transactionDetails, setTransactionDetails] =
     useState<InOutType | null>(null);
 
-  useEffect(() => {
-    GetTransactionInfo(props.transaction.hash).then(response => {
+
+  const getItFromApi = useCallback(async () => {
+    GetTransactionInfo(props.transaction.hash).then(async response => {
       if (response !== false) {
+        await SaveTransactionInfo(
+          props.transaction.hash,
+          response.data[props.transaction.hash],
+        );
+
         const searchInputs = response.data[props.transaction.hash].inputs.find(
           input => input.recipient === walletID,
         );
@@ -33,21 +40,52 @@ function TransactionDetails(props: Props) {
           props.transaction.hash
         ].outputs.find(output => output.recipient === walletID);
 
-        if (searchInputs !== undefined) {
-          setTransactionDetails(searchInputs);
-        } else if (searchOutputs !== undefined) {
-          setTransactionDetails(searchOutputs);
+        if (props.transaction.balance_change < 0) {
+          if (searchInputs !== undefined) {
+            setTransactionDetails(searchInputs);
+          }
+        } else {
+          if (searchOutputs !== undefined) {
+            setTransactionDetails(searchOutputs);
+          }
         }
 
         setTransactionInfo(response.data[props.transaction.hash].transaction);
       }
     });
-  }, [walletID, props.transaction]);
+  }, [props.transaction.balance_change, props.transaction.hash, walletID]);
+
+
+  useEffect(() => {
+    ReadTransactionInfo(props.transaction.hash).then(response => {
+      if (response) {
+        const searchOutputs = response.outputs.find(
+          output => output.recipient === walletID,
+        );
+        const searchInputs = response.inputs.find(
+          input => input.recipient === walletID,
+        );
+
+        if (props.transaction.balance_change < 0) {
+          if (searchInputs !== undefined) {
+            setTransactionDetails(searchInputs);
+          }
+        } else {
+          if (searchOutputs !== undefined) {
+            setTransactionDetails(searchOutputs);
+          }
+        }
+        setTransactionInfo(response.transaction);
+      } else {
+        getItFromApi().then(undefined);
+      }
+    });
+  }, [walletID, props.transaction, getItFromApi]);
 
   return (
     <View style={styles.holder}>
       <View style={styles.item}>
-        <Text style={styles.itemName}>RECEIVED WITH</Text>
+        <Text style={styles.itemName}>BLOCK ID</Text>
         <Text style={styles.itemDescription}>{props.transaction.block_id}</Text>
       </View>
 
@@ -82,26 +120,26 @@ function TransactionDetails(props: Props) {
         </View>
       </View>
 
-      <View style={styles.item}>
-        <Text style={styles.itemName}>BALANCE ??</Text>
-        <View style={styles.priceHolder}>
-          <Text style={styles.itemDescription}>0.009120</Text>
-          <Text style={styles.currencyHolder}>DOGE</Text>
-        </View>
-      </View>
+      {/*<View style={styles.item}>*/}
+      {/*  <Text style={styles.itemName}>BALANCE ??</Text>*/}
+      {/*  <View style={styles.priceHolder}>*/}
+      {/*    <Text style={styles.itemDescription}>0.009120</Text>*/}
+      {/*    <Text style={styles.currencyHolder}>DOGE</Text>*/}
+      {/*  </View>*/}
+      {/*</View>*/}
 
-      <View style={styles.item}>
-        <Text style={styles.itemName}>BALANCE (USD) ??</Text>
-        <View style={styles.priceHolder}>
-          <Text style={styles.itemDescription}>123.15</Text>
-          <Text style={styles.currencyHolder}>USD</Text>
-        </View>
-      </View>
+      {/*<View style={styles.item}>*/}
+      {/*  <Text style={styles.itemName}>BALANCE (USD) ??</Text>*/}
+      {/*  <View style={styles.priceHolder}>*/}
+      {/*    <Text style={styles.itemDescription}>123.15</Text>*/}
+      {/*    <Text style={styles.currencyHolder}>USD</Text>*/}
+      {/*  </View>*/}
+      {/*</View>*/}
 
       <View style={styles.item}>
         <Text style={styles.itemName}>FEE</Text>
         <View style={styles.priceHolder}>
-          <Text style={styles.itemDescription}>{transactionInfo?.fee_usd}</Text>
+          <Text style={styles.itemDescription}>{transactionInfo?.fee_usd.toFixed(2)}</Text>
           <Text style={styles.currencyHolder}>USD</Text>
         </View>
       </View>

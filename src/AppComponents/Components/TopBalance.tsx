@@ -4,21 +4,27 @@ import ArrowSVG from '../../assets/arrow.svg';
 import {useWallet} from '../../State/WalletState';
 import {ReadWalletDetails} from '../../FileOperations/ReadWalletDetails';
 import {AddressType} from '../../Repositories/WalletType';
+import DogePriceFixer from './DogePriceFixer';
 
-export default function TopBalance() {
+export default function TopBalance(props: {
+  balanceDiff: number;
+  type: 'doge' | 'usd';
+}) {
   const walletState = useWallet();
   const [balance, setBalance] = useState(0);
-  const [balanceDiff, setBalanceDiff] = useState(0);
 
   useEffect(() => {
     ReadWalletDetails(walletState.id).then(response => {
       if (response !== false) {
         const walletInfo = response as AddressType;
-        setBalance(walletInfo.balance_usd);
-        setBalanceDiff(1.75);
+        if (props.type === 'usd') {
+          setBalance(walletInfo.balance_usd);
+        } else {
+          setBalance(walletInfo.balance);
+        }
       }
     });
-  }, []);
+  }, [props.type]);
 
   return (
     <View style={styles.balanceHolder}>
@@ -26,28 +32,34 @@ export default function TopBalance() {
         <Text style={styles.balanceText}>Balance</Text>
         <View style={styles.balanceTotalAndCurrency}>
           <Text style={styles.balanceTotal}>
-            {new Intl.NumberFormat('en-US', {
-              currency: 'USD',
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }).format(balance)}{' '}
+            {props.type === 'doge'
+              ? DogePriceFixer(balance)
+              : new Intl.NumberFormat('en-US', {
+                  currency: 'USD',
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }).format(balance)}
           </Text>
-          <Text style={styles.balanceCurrency}>USD</Text>
+          <Text style={styles.balanceCurrency}>
+            {props.type === 'doge' ? 'DOGE' : 'USD'}
+          </Text>
         </View>
       </View>
       <View style={styles.arrowAndPercentage}>
         <ArrowSVG
-          fill={balanceDiff < 0 ? '#D94D57' : '#248E38'}
+          fill={props.balanceDiff < 0 ? '#D94D57' : '#248E38'}
           style={{
-            transform: [{rotate: balanceDiff < 0 ? '0deg' : '180deg'}],
+            transform: [{rotate: props.balanceDiff < 0 ? '0deg' : '180deg'}],
             ...styles.arrowStyle,
           }}
         />
         <Text
           style={
-            balanceDiff < 0 ? styles.balanceDiffMinus : styles.balanceDiffPlus
+            props.balanceDiff < 0
+              ? styles.balanceDiffMinus
+              : styles.balanceDiffPlus
           }>
-          {balanceDiff.toFixed(2)} %
+          {props.balanceDiff.toFixed(2)} %
         </Text>
       </View>
     </View>
