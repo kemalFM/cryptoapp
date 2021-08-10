@@ -7,8 +7,11 @@ This repository contains an application that works both in iOS and Android, show
 The information that shows and calculates;
 
 - Taxfree DogeCoins you may cash out
+   - [Further Documentation](https://github.com/kemalFM/cryptoapp/blob/main/src/AppComponents/Components/TaxFreeCalculator.tsx)
 - Total profit or loss from the day you bought DogeCoin
+  - [Further Documentation](https://github.com/kemalFM/cryptoapp/blob/main/src/AppComponents/Components/ProfitCalculator.tsx)
 - 1 Week Chart of your balance in euros, usd or in dogecoins
+   - [Further Documentation](https://github.com/kemalFM/cryptoapp/blob/main/src/AppComponents/Components/TotalChart.tsx)
 
 # License
 
