@@ -1,3 +1,11 @@
+/**
+ * This view is showing total balance
+ * in DOGECoins
+ * in USD
+ * in EUR
+ * Also shows the percentage changed on DOGEcoin price on the right side of the view.
+ */
+
 import {StyleSheet, Text, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import ArrowSVG from '../../assets/arrow.svg';
@@ -5,6 +13,8 @@ import {useWallet} from '../../State/WalletState';
 import {ReadWalletDetails} from '../../FileOperations/ReadWalletDetails';
 import {AddressType} from '../../Repositories/WalletType';
 import DogePriceFixer from './DogePriceFixer';
+import {useExchangeRates} from '../../State/ExchangeRates';
+import PriceConverter from './PriceConverter';
 
 export default function TopBalance(props: {
   balanceDiff: number;
@@ -13,18 +23,24 @@ export default function TopBalance(props: {
   const walletState = useWallet();
   const [balance, setBalance] = useState(0);
 
+  const exchangeRates = useExchangeRates();
+
   useEffect(() => {
-    ReadWalletDetails(walletState.id).then(response => {
-      if (response !== false) {
-        const walletInfo = response as AddressType;
-        if (props.type === 'usd') {
-          setBalance(walletInfo.balance_usd);
-        } else {
-          setBalance(walletInfo.balance);
+    ReadWalletDetails(walletState.id)
+      .then(response => {
+        if (response !== false) {
+          const walletInfo = response as AddressType;
+          if (props.type === 'usd') {
+            setBalance(walletInfo.balance_usd);
+          } else {
+            setBalance(walletInfo.balance);
+          }
         }
-      }
-    });
-  }, [props.type]);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }, [props.type, walletState.id]);
 
   return (
     <View style={styles.balanceHolder}>
@@ -35,13 +51,19 @@ export default function TopBalance(props: {
             {props.type === 'doge'
               ? DogePriceFixer(balance)
               : new Intl.NumberFormat('en-US', {
-                  currency: 'USD',
+                  currency: exchangeRates.currency,
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
-                }).format(balance)}
+                }).format(
+                  PriceConverter(
+                    balance,
+                    exchangeRates.currency,
+                    exchangeRates.rates,
+                  ),
+                )}
           </Text>
           <Text style={styles.balanceCurrency}>
-            {props.type === 'doge' ? 'DOGE' : 'USD'}
+            {props.type === 'doge' ? 'DOGE' : exchangeRates.currency}
           </Text>
         </View>
       </View>

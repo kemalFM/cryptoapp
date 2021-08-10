@@ -1,4 +1,9 @@
-import React from 'react';
+/**
+ * This file reads transactions from the local storage, and returns them in JSON format
+ * The react-native-fs documentation can be found under this link
+ * https://github.com/itinance/react-native-fs
+ */
+
 import RNFS from 'react-native-fs';
 import {ConvertTOJSON} from '../Repositories/ConvertTransactions';
 

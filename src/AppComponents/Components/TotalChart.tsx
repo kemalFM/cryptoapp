@@ -1,5 +1,13 @@
+/**
+ * This view is on home page that shows balance change in dogecoins as well as
+ * in United States Dollars
+ * The usage is just by sending type as 'usd' or 'doge' refereed in the prop types
+ * It uses the chart library for react native, documantation can be found under this url
+ * https://github.com/indiespirit/react-native-chart-kit
+ */
+
 import React, {useCallback, useEffect, useState} from 'react';
-import {Dimensions, View} from 'react-native';
+import {Dimensions, StyleSheet, View} from 'react-native';
 import {LineChart} from 'react-native-chart-kit';
 import {useWallet} from '../../State/WalletState';
 import {ReadTransactions} from '../../FileOperations/ReadTransactions';
@@ -13,14 +21,15 @@ interface Props {
 }
 
 function TotalChart(props: Props) {
-  const [transactions, setTransacitons] = useState<
+  const [transactions, setTransactions] = useState<
     {date: string; value: number}[]
   >([]);
   const walletID = useWallet(state => state.id);
 
-  useEffect(() => {
-    readTransaction().then(undefined);
-  }, [walletID]);
+  /**
+   * This is the function that reads the transactions as well as wallet details from storage
+   * and parses them to be able to show in chart
+   */
 
   const readTransaction = useCallback(async () => {
     const transactionList = await ReadTransactions(walletID);
@@ -80,9 +89,13 @@ function TotalChart(props: Props) {
         return transaction;
       });
 
-      setTransacitons(transactionMap.reverse());
+      setTransactions(transactionMap.reverse());
     }
-  }, [walletID]);
+  }, [props.type, walletID]);
+
+  useEffect(() => {
+    readTransaction().then(undefined);
+  }, [readTransaction, walletID]);
 
   return (
     <View>
@@ -105,17 +118,17 @@ function TotalChart(props: Props) {
             },
           ],
         }}
-        width={Dimensions.get('window').width - 50} // from react-native
+        width={Dimensions.get('window').width - 50}
         height={180}
         yAxisLabel={props.type === 'usd' ? '$' : ''}
         formatYLabel={label => nFormatter(Number(label), 1)}
-        yAxisInterval={1} // optional, defaults to 1
+        yAxisInterval={1}
         withDots={false}
         chartConfig={{
           backgroundColor: '#fff',
           backgroundGradientFrom: '#fff',
           backgroundGradientTo: '#fff',
-          decimalPlaces: 2, // optional, defaults to 2dp
+          decimalPlaces: 2,
           color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
           labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
           propsForDots: {
@@ -125,13 +138,17 @@ function TotalChart(props: Props) {
           },
         }}
         bezier
-        style={{
-          marginVertical: 30,
-          borderRadius: 16,
-        }}
+        style={styles.chartStyle}
       />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  chartStyle: {
+    marginVertical: 30,
+    borderRadius: 16,
+  },
+});
 
 export default TotalChart;

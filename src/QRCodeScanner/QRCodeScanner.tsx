@@ -1,3 +1,10 @@
+/**
+ * This view is used in both walletID scans and TransactionHash scans
+ * The way it works changes by sending onBarCodeRead function.
+ * When this component hits QRCode it calls OnBarcodeRead function and waits for the function
+ * to return boolean value
+ */
+
 import React, {useCallback, useState} from 'react';
 import WelcomeScreen from '../WelcomeScreen/WelcomeScreen';
 import {BarCodeReadEvent, RNCamera} from 'react-native-camera';
@@ -30,7 +37,9 @@ function QRCodeScanner(props: Props) {
       if (!readStatus) {
         await Alert.alert(
           'Wallet Not Found',
-          `Sorry we could not verify your ${props.type === undefined ? 'Wallet ID' : props.type}. Please try again`,
+          `Sorry we could not verify your ${
+            props.type === undefined ? 'Wallet ID' : props.type
+          }. Please try again`,
           [{text: 'OK', onPress: () => setReading(true)}],
           {cancelable: false},
         );
@@ -52,7 +61,7 @@ function QRCodeScanner(props: Props) {
       <TouchableOpacity
         style={styles.closeButton}
         onPress={() => navigation.dismissModal()}>
-        <CloseSVG style={styles.closeSVG} />
+        <CloseSVG fill="#fff" style={styles.closeSVG} />
       </TouchableOpacity>
       {!reading && (
         <View style={styles.loadingHolder}>
@@ -77,14 +86,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   closeSVG: {
-    width: 40,
-    height: 40,
+    width: 30,
+    height: 30,
   },
   closeButton: {
     position: 'absolute',
+    backgroundColor: '#000',
+    borderRadius: 5,
     top: 10,
     right: 10,
-
     padding: 10,
   },
   camera: {

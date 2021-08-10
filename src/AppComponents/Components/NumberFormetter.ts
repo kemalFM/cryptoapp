@@ -1,3 +1,10 @@
+/**
+ *
+ * @param num
+ * @param digits
+ * Formatting long numbers with well known endings which are
+ * K, M, G , T , P ,E
+ */
 export function nFormatter(num: number, digits: number) {
   const lookup = [
     {value: 1, symbol: ''},
@@ -9,11 +16,11 @@ export function nFormatter(num: number, digits: number) {
     {value: 1e18, symbol: 'E'},
   ];
   const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-  var item = lookup
+  const item = lookup
     .slice()
     .reverse()
-    .find(function (item) {
-      return num >= item.value;
+    .find(function (innerValue) {
+      return num >= innerValue.value;
     });
   return item
     ? (num / item.value).toFixed(digits).replace(rx, '$1') + item.symbol

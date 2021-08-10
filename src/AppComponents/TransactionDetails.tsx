@@ -1,15 +1,23 @@
+/**
+ * This view shows transaction details
+ */
+
 import React, {useCallback, useEffect, useState} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import {Options} from 'react-native-navigation';
 import {TransactionType} from '../Repositories/WalletType';
-import {
-  InOutType,
-  TransactionInfo
-} from '../Repositories/TransactionInfoType';
+import {TransactionInfo} from '../Repositories/TransactionInfoType';
 import {GetTransactionInfo} from '../Repositories/GetTransactionInfo';
 import {useWallet} from '../State/WalletState';
 import {ReadTransactionInfo} from '../FileOperations/ReadTransactionInfo';
 import {SaveTransactionInfo} from '../FileOperations/SaveTransactionInfo';
+import CalculateTransactionValue from './Components/CalculateTransactionValue';
 
 type Props = {
   componentId: string;
@@ -21,60 +29,53 @@ function TransactionDetails(props: Props) {
 
   const [transactionInfo, setTransactionInfo] =
     useState<TransactionInfo | null>(null);
-  const [transactionDetails, setTransactionDetails] =
-    useState<InOutType | null>(null);
 
+  const [loading, setLoading] = useState(true);
 
+  const [totalUSD, setTotalUSD] = useState(0);
+
+  /**
+   * This function gets transaction details from api endpoint and caches them for further requests to that transaction
+   */
   const getItFromApi = useCallback(async () => {
-    GetTransactionInfo(props.transaction.hash).then(async response => {
-      if (response !== false) {
-        await SaveTransactionInfo(
-          props.transaction.hash,
-          response.data[props.transaction.hash],
-        );
+    GetTransactionInfo(props.transaction.hash)
+      .then(async response => {
+        if (response !== false) {
+          await SaveTransactionInfo(
+            props.transaction.hash,
+            response.data[props.transaction.hash],
+          );
 
-        const searchInputs = response.data[props.transaction.hash].inputs.find(
-          input => input.recipient === walletID,
-        );
-        const searchOutputs = response.data[
-          props.transaction.hash
-        ].outputs.find(output => output.recipient === walletID);
-
-        if (props.transaction.balance_change < 0) {
-          if (searchInputs !== undefined) {
-            setTransactionDetails(searchInputs);
-          }
-        } else {
-          if (searchOutputs !== undefined) {
-            setTransactionDetails(searchOutputs);
-          }
+          setTotalUSD(
+            CalculateTransactionValue(
+              props.transaction,
+              response.data[props.transaction.hash],
+              walletID,
+            ),
+          );
+          setTransactionInfo(response.data[props.transaction.hash].transaction);
+          setLoading(false);
         }
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, [props.transaction, walletID]);
 
-        setTransactionInfo(response.data[props.transaction.hash].transaction);
-      }
-    });
-  }, [props.transaction.balance_change, props.transaction.hash, walletID]);
-
-
+  /**
+   * This function when the view loaded getting transaction details from cache if the app already has
+   * If not sending request to the endpoint
+   */
   useEffect(() => {
     ReadTransactionInfo(props.transaction.hash).then(response => {
       if (response) {
-        const searchOutputs = response.outputs.find(
-          output => output.recipient === walletID,
+        const calculate = CalculateTransactionValue(
+          props.transaction,
+          response,
+          walletID,
         );
-        const searchInputs = response.inputs.find(
-          input => input.recipient === walletID,
-        );
-
-        if (props.transaction.balance_change < 0) {
-          if (searchInputs !== undefined) {
-            setTransactionDetails(searchInputs);
-          }
-        } else {
-          if (searchOutputs !== undefined) {
-            setTransactionDetails(searchOutputs);
-          }
-        }
+        setTotalUSD(calculate);
+        setLoading(false);
         setTransactionInfo(response.transaction);
       } else {
         getItFromApi().then(undefined);
@@ -112,35 +113,31 @@ function TransactionDetails(props: Props) {
           </View>
           <View style={styles.priceHolder}>
             <Text style={styles.itemDescription}>
-              {props.transaction.balance_change < 0 && '-'}
-              {transactionDetails?.value_usd.toFixed(2)}
+              {loading ? (
+                <ActivityIndicator
+                  color={Platform.OS === 'android' ? '#0000ff' : undefined}
+                />
+              ) : (
+                totalUSD.toFixed(2)
+              )}
             </Text>
-            <Text style={styles.currencyHolder}>USD</Text>
+            {!loading && <Text style={styles.currencyHolder}>USD</Text>}
           </View>
         </View>
       </View>
-
-      {/*<View style={styles.item}>*/}
-      {/*  <Text style={styles.itemName}>BALANCE ??</Text>*/}
-      {/*  <View style={styles.priceHolder}>*/}
-      {/*    <Text style={styles.itemDescription}>0.009120</Text>*/}
-      {/*    <Text style={styles.currencyHolder}>DOGE</Text>*/}
-      {/*  </View>*/}
-      {/*</View>*/}
-
-      {/*<View style={styles.item}>*/}
-      {/*  <Text style={styles.itemName}>BALANCE (USD) ??</Text>*/}
-      {/*  <View style={styles.priceHolder}>*/}
-      {/*    <Text style={styles.itemDescription}>123.15</Text>*/}
-      {/*    <Text style={styles.currencyHolder}>USD</Text>*/}
-      {/*  </View>*/}
-      {/*</View>*/}
-
       <View style={styles.item}>
         <Text style={styles.itemName}>FEE</Text>
         <View style={styles.priceHolder}>
-          <Text style={styles.itemDescription}>{transactionInfo?.fee_usd.toFixed(2)}</Text>
-          <Text style={styles.currencyHolder}>USD</Text>
+          <Text style={styles.itemDescription}>
+            {loading ? (
+              <ActivityIndicator
+                color={Platform.OS === 'android' ? '#0000ff' : undefined}
+              />
+            ) : (
+              transactionInfo?.fee_usd.toFixed(2)
+            )}
+          </Text>
+          {!loading && <Text style={styles.currencyHolder}>USD</Text>}
         </View>
       </View>
     </View>

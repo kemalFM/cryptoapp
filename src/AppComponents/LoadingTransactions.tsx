@@ -1,6 +1,14 @@
+/**
+ * This file is responsible for getting walletDetails after successful entry of walletID from WelcomeScreen
+ * After getting wallet information it then gets transactions inside wallet, since api endpoint has 30 request per min limit, we are not able to send more than 30 requests in a minute
+ * It also checks if we already have wallet information in our storage to prevent extra requests and wait times at reopening app.
+ * It also checks that if user has new transactions since user opened the application, and gets and store them as well.
+ * Shows minimal loading bar to give information to user what is really happening behind.
+ */
+
 import React, {useCallback, useEffect, useState} from 'react';
 
-import {Image, SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import {Alert, SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import {useWallet} from '../State/WalletState';
 import GetTransactions from '../Repositories/GetTransactions';
 import {AddressType, Wallet} from '../Repositories/WalletType';
@@ -13,15 +21,20 @@ import DogeSVG from '../assets/dogecoin.svg';
 import {ReadTransactions} from '../FileOperations/ReadTransactions';
 import {GetMultipleTransactionInfo} from '../Repositories/GetTransactionInfo';
 import {SaveTransactionInfo} from '../FileOperations/SaveTransactionInfo';
+import GetExchangeRates from '../Repositories/ExchangeRates';
+import {useExchangeRates} from '../State/ExchangeRates';
 
 function LoadingTransactions() {
   const walletState = useWallet();
-
+  const exchangeRatesState = useExchangeRates();
   const [transactionCount, setTransactionCount] = useState<number>(0);
   const [loaded, setLoaded] = useState<number>(0);
   const [gettingTransactionsInfo, setGettingTransactionsInfo] = useState(false);
 
   const getTransactions = useCallback(async () => {
+    /**
+     * Sending request to the endpoint in order to check if we already have the wallet or not.
+     */
     let getWalletDetails = await GetTransactions(walletState.id, 1, 0);
 
     if (getWalletDetails !== false) {
@@ -30,25 +43,26 @@ function LoadingTransactions() {
       setTransactionCount(
         getWalletDetails.data[walletState.id].address.transaction_count,
       );
-
+      //Reading wallet details from storage to compare and check if we have the details correctly or not
       let walletData = await ReadWalletDetails(walletState.id);
 
+      //If we have the wallet data in storage this part will be working
       if (walletData !== false) {
         walletData = walletData as AddressType;
 
+        //Checking if the app has the correct amount of transactions to understand if there is new transactions.
         if (
           walletData.transaction_count ===
           getWalletDetails.data[walletState.id].address.transaction_count
         ) {
-          /// WE HAVE EVERYTHING WE NEED NO NEED TO UPDATE SETTING ROOT
+          /// When everything is matching with the chain we are just updating the latest wallet information which also holds current balance in usd and sending user to homepage.
           await SaveWalletDetails(
             walletState.id,
             getWalletDetails.data[walletState.id].address,
           );
           await setRoot(AppComponentRoutes);
         } else {
-          //We have new transactions
-
+          // When user has some new transactions since their last login this part will be working, sending request to the endpoint retrieving new transactions and storing them.
           let getNewTransactions = await GetTransactions(
             walletState.id,
             getWalletDetails.data[walletState.id].address.transaction_count -
@@ -70,6 +84,9 @@ function LoadingTransactions() {
           setGettingTransactionsInfo(true);
           setLoaded(0);
           setTransactionCount(0);
+
+          // Saving details for new transactions only
+
           await loadTransactionDetails(
             transactionList.map(transaction => transaction.hash),
           );
@@ -77,8 +94,7 @@ function LoadingTransactions() {
           await setRoot(AppComponentRoutes);
         }
       } else {
-        //SAVING TRANSACTIONS FOR THE FIRST TIME
-
+        // When the walletID entered for the first time this part will be working
         let firstThousandTransaction = await GetTransactions(
           walletState.id,
           1000,
@@ -130,10 +146,16 @@ function LoadingTransactions() {
         setGettingTransactionsInfo(true);
         setLoaded(0);
         setTransactionCount(0);
+        //After everything is finished we are loading transaction details
         await loadTransactionDetails();
 
         await setRoot(AppComponentRoutes);
       }
+    } else {
+      Alert.alert(
+        'Error',
+        'We are having trouble to access your wallet data, please try again later',
+      );
     }
   }, [walletState]);
 
@@ -175,7 +197,7 @@ function LoadingTransactions() {
               tenTransactionHash.forEach(hash => {
                 SaveTransactionInfo(hash, data.data[hash]);
               });
-            }else{
+            } else {
               setLoaded(totalLoaded + tenTransactionHash.length);
               totalLoaded += tenTransactionHash.length;
               console.log('error occured');
@@ -190,8 +212,16 @@ function LoadingTransactions() {
     [walletState],
   );
 
+  const loadExchangeRates = useCallback(async () => {
+    const rateList = await GetExchangeRates();
+    if (rateList !== false) {
+      exchangeRatesState.setRates(rateList);
+    }
+  }, [exchangeRatesState]);
+
   useEffect(() => {
     getTransactions().then(undefined);
+    loadExchangeRates().then(undefined);
   }, [walletState]);
 
   // Calculating percentage for total transactions we have saved / total transactions (saved*100/totalTransactions)

@@ -1,15 +1,18 @@
-import React, {useEffect, useState} from 'react';
+/**
+ * This file is a view for transactions tab,
+ * Shows all transactions in FlatList
+ * If we already have the transaction details it also shows the transaction in USD
+ */
+
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
-  Alert,
   FlatList,
   SafeAreaView,
-  ScrollView,
   StyleSheet,
-  Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import {Options} from 'react-native-navigation/lib/src/interfaces/Options';
-import TopBalance from './Components/TopBalance';
 import Transaction from './Components/Transaction';
 import {
   useNavigation,
@@ -18,6 +21,7 @@ import {
 import {useWallet} from '../State/WalletState';
 import {ReadTransactions} from '../FileOperations/ReadTransactions';
 import {TransactionType} from '../Repositories/WalletType';
+import UpArrowSVG from '../assets/uparrow.svg';
 
 type Props = {
   componentId: string;
@@ -32,9 +36,9 @@ function Transactions(props: Props) {
     [],
   );
 
+  const listRef = useRef<FlatList<TransactionType>>(null);
 
   useEffect(() => {
-
     navigation.mergeOptions({
       topBar: {
         rightButtons: [
@@ -43,14 +47,13 @@ function Transactions(props: Props) {
             component: {
               name: 'de.kfm.TopQRCodeScan',
               passProps: {
-                navigation: navigation
-              }
-            }
-          }
-        ]
-      }
-    })
-
+                navigation: navigation,
+              },
+            },
+          },
+        ],
+      },
+    });
   }, []);
 
   useEffect(() => {
@@ -84,10 +87,20 @@ function Transactions(props: Props) {
     setLastTransactions(filtered);
   }, props.componentId);
 
+  const goToTop = useCallback(() => {
+    if (listRef.current !== null) {
+      listRef.current.scrollToIndex({
+        animated: true,
+        index: 0,
+      });
+    }
+  }, [listRef]);
+
   return (
     <SafeAreaView>
-      <View>
+      <View style={styles.flatHolder}>
         <FlatList
+          ref={listRef}
           style={styles.scrollViewStyle}
           data={lastTransactions}
           keyExtractor={item => item.hash}
@@ -101,11 +114,32 @@ function Transactions(props: Props) {
           )}
         />
       </View>
+      <TouchableOpacity onPress={goToTop} style={styles.goTopHolder}>
+        <UpArrowSVG fill="#000" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  flatHolder: {
+    height: '100%',
+  },
+  goTopHolder: {
+    backgroundColor: '#FFFFFF',
+    position: 'absolute',
+    zIndex: 999,
+    bottom: 10,
+    justifyContent: "center",
+    alignSelf: "center",
+    width: 30,
+    height: 30,
+    borderWidth: 1,
+    borderColor: '#0e0e0e',
+    padding: 5,
+    elevation: 9,
+    borderRadius: 8,
+  },
   transactionText: {
     paddingHorizontal: 25,
     paddingTop: 25,
@@ -120,6 +154,7 @@ const styles = StyleSheet.create({
   scrollViewStyle: {
     paddingTop: 25,
     paddingHorizontal: 25,
+    zIndex: 9,
   },
 });
 

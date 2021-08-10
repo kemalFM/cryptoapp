@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect, useState } from "react";
+/**
+ * This file is the entry point to the application,
+ * Checks if user is already logged in validates walletID
+ */
+
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -8,14 +13,13 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
 } from 'react-native';
 import DogeCoinSVG from '../assets/dogecoin.svg';
 import {setRoot, showModal} from 'react-native-navigation-hooks';
 import ValidateWallet from '../Repositories/ValidateWallet';
-import {LoadTransactionsRoute } from "../../AppRoutes";
-import { useWallet } from "../State/WalletState";
-import { getWalletID, storeWalletID } from "../State/WalletStore";
+import {LoadTransactionsRoute} from '../../AppRoutes';
+import {useWallet} from '../State/WalletState';
+import {getWalletID, storeWalletID} from '../State/WalletStore';
 
 function WelcomeScreen() {
   const [walletID, setWalletID] = useState('');
@@ -55,29 +59,23 @@ function WelcomeScreen() {
     [walletID],
   );
 
-
   useEffect(() => {
-
-    if(walletID.length === 34){
-      checkWalletID();
+    if (walletID.length === 34) {
+      checkWalletID().then(undefined);
     }
-
-  }, [walletID]);
+  }, [checkWalletID, walletID]);
 
   const checkIfAlreadyLoggedIN = useCallback(async () => {
-
     const walletID = await getWalletID();
 
-    if(walletID !== null){
+    if (walletID !== null) {
       walletState.setWallet(walletID);
       await setRoot(LoadTransactionsRoute);
     }
-
   }, []);
 
-
   useEffect(() => {
-    checkIfAlreadyLoggedIN().then(undefined)
+    checkIfAlreadyLoggedIN().then(undefined);
   }, [checkIfAlreadyLoggedIN]);
 
   return (

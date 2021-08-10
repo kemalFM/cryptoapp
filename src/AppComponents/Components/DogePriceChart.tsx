@@ -1,23 +1,38 @@
+/**
+ *
+ * This page is showing chart for latest dogecoin prices for a week.
+ * Its located on HomePage at the end of the screen.
+ * The chart library which is being used is
+ * https://github.com/indiespirit/react-native-chart-kit
+ * For getting latest dogecoin prices, app is using the same api as we get transactions which can be found under
+ * /Repositories/GetStats.ts*GetPrices();
+ *
+ */
+
 import {LineChart} from 'react-native-chart-kit';
 import {Dimensions, StyleSheet, Text, View} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {DogePriceType} from '../../Repositories/DogePriceType';
+import React, {useEffect} from 'react';
 import {GetPrices} from '../../Repositories/GetStats';
 import ArrowSVG from '../../assets/arrow.svg';
+import {useDogePrices} from '../../State/DogePrices';
 
 export default function DogePriceChart(props: {
   currentPrice: number;
   balanceDiff: number;
 }) {
-  const [prices, setPrices] = useState<DogePriceType | null>(null);
+  const dogePrices = useDogePrices();
 
+  /**
+   * Sending request for the prices and setting it to the global state
+   * since the app is using it on some other places as well
+   * */
   useEffect(() => {
     GetPrices().then(response => {
       if (response) {
-        setPrices(response);
+        dogePrices.setPrices(response);
       }
     });
-  }, []);
+  }, [dogePrices]);
 
   return (
     <View style={styles.topHolder}>
@@ -50,8 +65,8 @@ export default function DogePriceChart(props: {
       <LineChart
         data={{
           labels:
-            prices !== null
-              ? prices.data.map(price => {
+            dogePrices.prices !== null
+              ? dogePrices.prices.data.map(price => {
                   const date = new Date(price.date);
                   return date.getDate().toString();
                 })
@@ -59,22 +74,24 @@ export default function DogePriceChart(props: {
           datasets: [
             {
               data:
-                prices !== null
-                  ? prices.data.map(price => price['price(doge_usd)'])
+                dogePrices.prices !== null
+                  ? dogePrices.prices.data.map(
+                      price => price['price(doge_usd)'],
+                    )
                   : [0],
             },
           ],
         }}
-        width={Dimensions.get('window').width - 50} // from react-native
+        width={Dimensions.get('window').width - 50}
         height={180}
         yAxisLabel="$"
-        yAxisInterval={1} // optional, defaults to 1
-        withDots={false}
+        yLabelsOffset={5}
+        withDots={true}
         chartConfig={{
           backgroundColor: '#fff',
           backgroundGradientFrom: '#fff',
           backgroundGradientTo: '#fff',
-          decimalPlaces: 2, // optional, defaults to 2dp
+          decimalPlaces: 5, // this is setting decimal places the default was 2
           color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
           labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
           propsForDots: {
@@ -84,16 +101,17 @@ export default function DogePriceChart(props: {
           },
         }}
         bezier
-        style={{
-          marginVertical: 30,
-          borderRadius: 16,
-        }}
+        style={styles.chartStyle}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  chartStyle: {
+    marginVertical: 30,
+    borderRadius: 16,
+  },
   topHolder: {
     marginTop: 25,
   },

@@ -9,8 +9,7 @@ export function ConvertToText(transactions: TransactionType[]): string {
 
 export function ConvertTOJSON(transactions: string): TransactionType[] {
   const newLineToJSON = transactions.split('\n');
-  return newLineToJSON.map(transaction =>{
-    return JSON.parse(transaction.replace('\\', '').replace('\n', ''))
-    }
-  );
+  return newLineToJSON.map(transaction => {
+    return JSON.parse(transaction.replace('\\', '').replace('\n', ''));
+  });
 }

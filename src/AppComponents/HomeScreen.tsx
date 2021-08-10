@@ -1,9 +1,18 @@
-import React, { useCallback, useEffect, useState } from "react";
+/**
+ * This is a view for homescreen where the
+ * Charts,
+ * Last 5 transactions,
+ * Tax Free,
+ * Profit
+ * Views are shown.
+ */
+
+import React, {useCallback, useEffect, useState} from 'react';
 import {
-  Alert,
   SafeAreaView,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TouchableOpacity,
   View,
@@ -12,22 +21,19 @@ import {Options} from 'react-native-navigation/lib/src/interfaces/Options';
 import TopBalance from './Components/TopBalance';
 import Transaction from './Components/Transaction';
 import {
-  setRoot,
-  showModal,
   useNavigation,
   useNavigationSearchBarUpdate,
 } from 'react-native-navigation-hooks';
-import {Navigation} from 'react-native-navigation';
 import {useWallet} from '../State/WalletState';
-import {removeWalletID} from '../State/WalletStore';
 import {ReadTransactions} from '../FileOperations/ReadTransactions';
 import {TransactionType} from '../Repositories/WalletType';
 import TotalChart from './Components/TotalChart';
-import { GetStats, GetPrices } from '../Repositories/GetStats';
+import {GetStats} from '../Repositories/GetStats';
 import {StatsType} from '../Repositories/StatsType';
-import TaxFreeCalculator from "./Components/TaxFreeCalculator";
-import { DogePriceType } from "../Repositories/DogePriceType";
-import DogePriceChart from "./Components/DogePriceChart";
+import TaxFreeCalculator from './Components/TaxFreeCalculator';
+import DogePriceChart from './Components/DogePriceChart';
+import {useExchangeRates} from '../State/ExchangeRates';
+import ProfitCalculator from './Components/ProfitCalculator';
 
 type Props = {
   componentId: string;
@@ -37,13 +43,15 @@ function HomeScreen(props: Props) {
   const navigation = useNavigation(props.componentId);
   useNavigationSearchBarUpdate(console.log, props.componentId);
   const walletState = useWallet();
+  const exchangeRates = useExchangeRates();
   const [lastTransactions, setLastTransactions] = useState<TransactionType[]>(
     [],
   );
   const [stats, setStats] = useState<StatsType | null>(null);
 
-  const [activeTab, setActiveTab] = useState<'tax' | 'doge' | 'usd'>('usd');
-
+  const [activeTab, setActiveTab] = useState<'profit' | 'tax' | 'doge' | 'usd'>(
+    'usd',
+  );
 
   useEffect(() => {
     ReadTransactions(walletState.id).then(response => {
@@ -74,7 +82,6 @@ function HomeScreen(props: Props) {
     return () => clearInterval(interval);
   }, []);
 
-
   const getStatsFromApi = useCallback(() => {
     GetStats().then(response => {
       if (response) {
@@ -86,6 +93,17 @@ function HomeScreen(props: Props) {
   return (
     <SafeAreaView>
       <ScrollView style={styles.scrollViewStyle}>
+        <View style={styles.topSwitch}>
+          <Text style={styles.pricingText}>EUR</Text>
+          <Switch
+            onValueChange={status =>
+              exchangeRates.setCurrency(status ? 'USD' : 'EUR')
+            }
+            value={exchangeRates.currency === 'USD'}
+          />
+          <Text style={styles.pricingText}>USD</Text>
+        </View>
+
         {activeTab === 'usd' && (
           <React.Fragment>
             <TopBalance
@@ -128,20 +146,68 @@ function HomeScreen(props: Props) {
           </React.Fragment>
         )}
 
+        {activeTab === 'profit' && (
+          <React.Fragment>
+            <TopBalance
+              type="usd"
+              balanceDiff={
+                stats === null
+                  ? 0
+                  : stats.data.market_price_usd_change_24h_percentage
+              }
+            />
+            <ProfitCalculator />
+          </React.Fragment>
+        )}
 
         <View style={styles.tabsHolder}>
-          <TouchableOpacity activeOpacity={0.5} onPress={() => setActiveTab('tax')} style={activeTab === 'tax' ? styles.tabActive : styles.tab}>
-            <Text style={activeTab === 'tax' ? styles.tabTextActive : styles.tabText}>Tax Free</Text>
+          <TouchableOpacity
+            activeOpacity={0.5}
+            onPress={() => setActiveTab('profit')}
+            style={activeTab === 'profit' ? styles.tabActive : styles.tab}>
+            <Text
+              style={
+                activeTab === 'profit' ? styles.tabTextActive : styles.tabText
+              }>
+              Profit
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.5} onPress={() => setActiveTab('doge')} style={activeTab === 'doge' ? styles.tabActive : styles.tab}>
-            <Text style={activeTab === 'doge' ? styles.tabTextActive : styles.tabText}>Balance Doge</Text>
+          <TouchableOpacity
+            activeOpacity={0.5}
+            onPress={() => setActiveTab('tax')}
+            style={activeTab === 'tax' ? styles.tabActive : styles.tab}>
+            <Text
+              style={
+                activeTab === 'tax' ? styles.tabTextActive : styles.tabText
+              }>
+              Tax Free
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.5} onPress={() => setActiveTab('usd')} style={activeTab === 'usd' ? styles.tabActive : styles.tab}>
-            <Text style={activeTab === 'usd' ? styles.tabTextActive : styles.tabText}>Balance USD</Text>
+          <TouchableOpacity
+            activeOpacity={0.5}
+            onPress={() => setActiveTab('doge')}
+            style={activeTab === 'doge' ? styles.tabActive : styles.tab}>
+            <Text
+              style={
+                activeTab === 'doge' ? styles.tabTextActive : styles.tabText
+              }>
+              Balance Doge
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.5}
+            onPress={() => setActiveTab('usd')}
+            style={activeTab === 'usd' ? styles.tabActive : styles.tab}>
+            <Text
+              style={
+                activeTab === 'usd' ? styles.tabTextActive : styles.tabText
+              }>
+              Balance {exchangeRates.currency}
+            </Text>
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.transactionText}>Transaction</Text>
+        <Text style={styles.transactionText}>Last 5 Transactions</Text>
         {lastTransactions.map(transaction => (
           <Transaction
             key={transaction.hash}
@@ -162,9 +228,14 @@ function HomeScreen(props: Props) {
           <Text style={styles.buttonText}>Show More</Text>
         </TouchableOpacity>
 
-        <DogePriceChart balanceDiff={ stats === null
-          ? 0
-          : stats.data.market_price_usd_change_24h_percentage} currentPrice={stats === null ? 0 : stats.data.market_price_usd} />
+        <DogePriceChart
+          balanceDiff={
+            stats === null
+              ? 0
+              : stats.data.market_price_usd_change_24h_percentage
+          }
+          currentPrice={stats === null ? 0 : stats.data.market_price_usd}
+        />
 
         <View style={styles.fixScrollHeight} />
       </ScrollView>
@@ -205,29 +276,38 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
   },
   tabsHolder: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   tabTextActive: {
-    fontSize: 18,
-    color: "#F06E22",
-    textAlign: "center",
+    fontSize: 17,
+    color: '#F06E22',
+    textAlign: 'center',
   },
   tabText: {
-    fontSize: 18,
-    textAlign: "center"
+    fontSize: 17,
+    color: '#000',
+    textAlign: 'center',
   },
   tab: {
     borderBottomWidth: 1,
     borderBottomColor: '#212121',
-    paddingBottom: 6
+    paddingBottom: 6,
   },
   tabActive: {
     borderBottomColor: '#F06E22',
     paddingBottom: 6,
     borderBottomWidth: 1,
-  }
+  },
+  topSwitch: {
+    flexDirection: 'row',
+    alignSelf: 'flex-end',
+  },
+  pricingText: {
+    lineHeight: 31,
+    marginRight: 5,
+    marginLeft: 5,
+  },
 });
 
 HomeScreen.options = {

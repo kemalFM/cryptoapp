@@ -1,10 +1,15 @@
+/**
+ * This view is shows the transaction in HomePage (Latest 5 Transactions)
+ * as well as Transaction list under the second tab of the application
+ */
+
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {NavigationCommands} from 'react-native-navigation-hooks/dist/helpers/createNavigationCommands';
 import {TransactionType} from '../../Repositories/WalletType';
 import {ReadTransactionInfo} from '../../FileOperations/ReadTransactionInfo';
 import {useWallet} from '../../State/WalletState';
-import DogePriceFixer from "./DogePriceFixer";
+import CalculateTransactionValue from './CalculateTransactionValue';
 
 export default function Transaction(props: {
   status: boolean;
@@ -17,20 +22,9 @@ export default function Transaction(props: {
   useEffect(() => {
     ReadTransactionInfo(props.transaction.hash).then(response => {
       if (response !== false) {
-        let totalUS = 0;
-
-        console.log(props.transaction.hash);
-        console.log(walletID);
-        console.log(props.transaction.balance_change, response.transaction.output_total, response.transaction.output_total_usd)
-        setTotalInUSD(props.transaction.balance_change * (response.transaction.output_total_usd / Number(DogePriceFixer(response.transaction.output_total, true))))
-        // response.inputs
-        //   .filter(inputList => inputList.recipient === walletID)
-        //   .forEach(input => (totalUS -= input.value_usd));
-        // response.outputs
-        //   .filter(outputList => outputList.recipient === walletID)
-        //   .forEach(output => (totalUS += output.value_usd));
-        //
-        // setTotalInUSD(response.transaction.output_total_usd - response.transaction.input_total_usd);
+        setTotalInUSD(
+          CalculateTransactionValue(props.transaction, response, walletID),
+        );
       }
     });
   }, [props.transaction.hash, walletID]);
@@ -54,8 +48,8 @@ export default function Transaction(props: {
       </View>
       <View
         style={
-          (props.transaction.balance_change.toString().length +
-            totalInUSD.toString().length) >=
+          props.transaction.balance_change.toString().length +
+            totalInUSD.toString().length >=
           12
             ? styles.transactionAmountHolderLong
             : styles.transactionAmountHolder
@@ -148,7 +142,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 5,
+    elevation: 0,
     marginVertical: 5,
   },
 });

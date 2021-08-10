@@ -1,3 +1,11 @@
+/**
+ * This file validates walletID at first with the local check which uses multicoin-address-validator which can be found here
+ * https://github.com/christsim/multicoin-address-validator
+ * And if the local check passes it checks if wallet exists in blockchain by sending request to the endpoint
+ * the documantation for this endpoint can be found under this url
+ * https://dogechain.info/api/blockchain_api
+ */
+
 import axios from 'axios';
 import {DOGE_CHAIN_API} from './RepositoryConstants';
 // @ts-ignore

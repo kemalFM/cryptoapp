@@ -11,6 +11,10 @@ import {removeWalletID} from './src/State/WalletStore';
 import {setRoot} from 'react-native-navigation-hooks';
 import Transactions from "./src/AppComponents/Transactions";
 import TopQRScan from "./src/AppComponents/Components/TopQRScan";
+
+import 'intl';
+import 'intl/locale-data/jsonp/en';
+
 Navigation.registerComponent('de.kfm.WelcomeScreen', () => WelcomeScreen);
 Navigation.registerComponent('de.kfm.QRCodeScanner', () => QRCodeScanner);
 Navigation.registerComponent('de.kfm.HomeScreen', () => HomeScreen);
