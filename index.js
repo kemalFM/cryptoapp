@@ -1,15 +1,17 @@
-import {Navigation} from 'react-native-navigation';
+import { Navigation } from 'react-native-navigation';
 import './shim';
 import WelcomeScreen from './src/WelcomeScreen/WelcomeScreen';
 import QRCodeScanner from './src/QRCodeScanner/QRCodeScanner';
 import HomeScreen from './src/AppComponents/HomeScreen';
 import TransactionDetails from './src/AppComponents/TransactionDetails';
 import LoadingTransactions from './src/AppComponents/LoadingTransactions';
-import {AppStartRoot} from './AppRoutes';
-import {Alert} from 'react-native';
-import {removeWalletID} from './src/State/WalletStore';
-import {setRoot} from 'react-native-navigation-hooks';
+import { AppStartRoot } from './AppRoutes';
+import { Alert, Platform } from 'react-native';
+import { removeWalletID } from './src/State/WalletStore';
+import { setRoot } from 'react-native-navigation-hooks';
 import Transactions from "./src/AppComponents/Transactions";
+import 'intl';
+import 'intl/locale-data/jsonp/en';
 import TopQRScan from "./src/AppComponents/Components/TopQRScan";
 
 import 'intl';
@@ -75,7 +77,7 @@ Navigation.events().registerBottomTabPressedListener(pressEvent => {
           await setRoot(AppStartRoot);
         },
       },
-      {text: 'No', style: 'cancel'},
+      { text: 'No', style: 'cancel' },
     ]);
   }
 });
