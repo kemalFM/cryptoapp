@@ -252,13 +252,13 @@ PODS:
     - React-jsi (= 0.64.1)
     - React-perflogger (= 0.64.1)
   - React-jsinspector (0.64.1)
-  - react-native-camera (4.0.0):
+  - react-native-camera (3.44.3):
     - React-Core
-    - react-native-camera/RCT (= 4.0.0)
-    - react-native-camera/RN (= 4.0.0)
-  - react-native-camera/RCT (4.0.0):
+    - react-native-camera/RCT (= 3.44.3)
+    - react-native-camera/RN (= 3.44.3)
+  - react-native-camera/RCT (3.44.3):
     - React-Core
-  - react-native-camera/RN (4.0.0):
+  - react-native-camera/RN (3.44.3):
     - React-Core
   - React-perflogger (0.64.1)
   - React-RCTActionSheet (0.64.1):
@@ -487,7 +487,7 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: 7b423f9e248eae65987838148c36eec1dbfe0b53
-  FBReactNativeSpec: 6a10296a293c602ff976be4f40178c66951162ae
+  FBReactNativeSpec: 1a3f4dcf1762d4df4078032030b8b0aeff4aa8db
   Flipper: d3da1aa199aad94455ae725e9f3aa43f3ec17021
   Flipper-DoubleConversion: 38631e41ef4f9b12861c67d17cb5518d06badc41
   Flipper-Folly: 755929a4f851b2fb2c347d533a23f191b008554c
@@ -509,7 +509,7 @@ SPEC CHECKSUMS:
   React-jsi: 5de8204706bd872b78ea646aee5d2561ca1214b6
   React-jsiexecutor: 124e8f99992490d0d13e0649d950d3e1aae06fe9
   React-jsinspector: 500a59626037be5b3b3d89c5151bc3baa9abf1a9
-  react-native-camera: e62538f784da3f3d2572813c271a66fb190c05a4
+  react-native-camera: b8cc03e2feec0c04403d0998e37cf519d8fd4c6f
   React-perflogger: aad6d4b4a267936b3667260d1f649b6f6069a675
   React-RCTActionSheet: fc376be462c9c8d6ad82c0905442fd77f82a9d2a
   React-RCTAnimation: ba0a1c3a2738be224a08092fa7f1b444ab77d309
@@ -523,12 +523,12 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: ff951a0c241bfaefc4940a3f1f1a229e7cb32fa6
   ReactCommon: bedc99ed4dae329c4fcf128d0c31b9115e5365ca
   ReactNativeNavigation: f81a4e3d44b761c5bf81a519b6e49845ecdf9440
-  RNCAsyncStorage: 8324611026e8dc3706f829953aa6e3899f581589
+  RNCAsyncStorage: 56a3355a10b5d660c48c6e37325ac85ebfd09885
   RNFS: 3ab21fa6c56d65566d1fb26c2228e2b6132e5e32
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   Yoga: a7de31c64fe738607e7a3803e3f591a4b1df7393
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: e24f456dbf095f0f137f8953d8c0f5cde988a478
+PODFILE CHECKSUM: 10d4797e18674d0726685a83435c888657b94e4b
 
 COCOAPODS: 1.10.1

@@ -1,26 +1,26 @@
-import { Navigation } from 'react-native-navigation';
+import {Navigation} from 'react-native-navigation';
 import './shim';
 import WelcomeScreen from './src/WelcomeScreen/WelcomeScreen';
 import QRCodeScanner from './src/QRCodeScanner/QRCodeScanner';
 import HomeScreen from './src/AppComponents/HomeScreen';
 import TransactionDetails from './src/AppComponents/TransactionDetails';
 import LoadingTransactions from './src/AppComponents/LoadingTransactions';
-import { AppStartRoot } from './AppRoutes';
-import { Alert, Platform } from 'react-native';
-import { removeWalletID } from './src/State/WalletStore';
-import { setRoot } from 'react-native-navigation-hooks';
-import Transactions from "./src/AppComponents/Transactions";
+import {AppStartRoot} from './AppRoutes';
+import {Alert} from 'react-native';
+import {removeWalletID} from './src/State/WalletStore';
+import {setRoot} from 'react-native-navigation-hooks';
+import Transactions from './src/AppComponents/Transactions';
 import 'intl';
 import 'intl/locale-data/jsonp/en';
-import TopQRScan from "./src/AppComponents/Components/TopQRScan";
-
-import 'intl';
-import 'intl/locale-data/jsonp/en';
+import TopQRScan from './src/AppComponents/Components/TopQRScan';
 
 Navigation.registerComponent('de.kfm.WelcomeScreen', () => WelcomeScreen);
 Navigation.registerComponent('de.kfm.QRCodeScanner', () => QRCodeScanner);
 Navigation.registerComponent('de.kfm.HomeScreen', () => HomeScreen);
-Navigation.registerComponent('de.kfm.TransactionsScreenTab', () => Transactions);
+Navigation.registerComponent(
+  'de.kfm.TransactionsScreenTab',
+  () => Transactions,
+);
 Navigation.registerComponent('de.kfm.TopQRCodeScan', () => TopQRScan);
 Navigation.registerComponent(
   'de.kfm.TransactionDetails',
@@ -37,23 +37,23 @@ Navigation.setDefaultOptions({
     componentBackgroundColor: '#fff',
   },
   bottomTab: {
-    selectedTextColor: "#F06E22",
-    iconColor: "#A0A0A0",
-    selectedIconColor: "#F06E22",
-    textColor: "#A0A0A0"
+    selectedTextColor: '#F06E22',
+    iconColor: '#A0A0A0',
+    selectedIconColor: '#F06E22',
+    textColor: '#A0A0A0',
   },
   topBar: {
     background: {
-      color: "#fff",
+      color: '#fff',
     },
-    borderColor: "#00000050",
+    borderColor: '#00000050',
     title: {
-      color: "#000"
-    }
+      color: '#000',
+    },
   },
   bottomTabs: {
-    backgroundColor: "#fff",
-    borderColor: "#00000050"
+    backgroundColor: '#fff',
+    borderColor: '#00000050',
   },
   animations: {
     setRoot: {
@@ -77,7 +77,7 @@ Navigation.events().registerBottomTabPressedListener(pressEvent => {
           await setRoot(AppStartRoot);
         },
       },
-      { text: 'No', style: 'cancel' },
+      {text: 'No', style: 'cancel'},
     ]);
   }
 });
