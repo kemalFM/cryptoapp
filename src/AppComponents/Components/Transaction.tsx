@@ -3,13 +3,14 @@
  * as well as Transaction list under the second tab of the application
  */
 
-import React, {useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from "react";
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {NavigationCommands} from 'react-native-navigation-hooks/dist/helpers/createNavigationCommands';
 import {TransactionType} from '../../Repositories/WalletType';
 import {ReadTransactionInfo} from '../../FileOperations/ReadTransactionInfo';
 import {useWallet} from '../../State/WalletState';
 import CalculateTransactionValue from './CalculateTransactionValue';
+import { TransactionInfo } from "../../Repositories/TransactionInfoType";
 
 export default function Transaction(props: {
   status: boolean;
@@ -29,11 +30,27 @@ export default function Transaction(props: {
     });
   }, [props.transaction.hash, walletID]);
 
+  const handleReturnedTransaction = useCallback((transactionInfo: TransactionInfo | null) => {
+
+    if(transactionInfo === null)
+      return;
+
+    ReadTransactionInfo(transactionInfo.hash).then(response => {
+      if (response !== false) {
+          setTotalInUSD(
+          CalculateTransactionValue(props.transaction, response, walletID),
+        );
+      }
+    });
+
+  }, []);
+
   return (
     <TouchableOpacity
       onPress={() =>
         props.navigation.push('de.kfm.TransactionDetails', {
           transaction: props.transaction,
+          sendNewTransaction: handleReturnedTransaction
         })
       }
       style={

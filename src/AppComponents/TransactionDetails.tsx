@@ -18,10 +18,12 @@ import {useWallet} from '../State/WalletState';
 import {ReadTransactionInfo} from '../FileOperations/ReadTransactionInfo';
 import {SaveTransactionInfo} from '../FileOperations/SaveTransactionInfo';
 import CalculateTransactionValue from './Components/CalculateTransactionValue';
+import {useNavigationScreenPop} from 'react-native-navigation-hooks';
 
 type Props = {
   componentId: string;
   transaction: TransactionType;
+  sendNewTransaction?: (transaction: TransactionInfo | null) => void;
 };
 
 function TransactionDetails(props: Props) {
@@ -33,6 +35,15 @@ function TransactionDetails(props: Props) {
   const [loading, setLoading] = useState(true);
 
   const [totalUSD, setTotalUSD] = useState(0);
+
+  useNavigationScreenPop(
+    () => {
+      if (props.sendNewTransaction !== undefined) {
+        props.sendNewTransaction(transactionInfo);
+      }
+    },
+    {componentId: props.componentId},
+  );
 
   /**
    * This function gets transaction details from api endpoint and caches them for further requests to that transaction
