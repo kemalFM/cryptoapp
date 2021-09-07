@@ -53,6 +53,8 @@ function HomeScreen(props: Props) {
     'usd',
   );
 
+  const [activeInnerTab, setActiveInnerTab] = useState<'doge' | 'usd'>('doge');
+
   useEffect(() => {
     ReadTransactions(walletState.id).then(response => {
       if (response !== false) {
@@ -96,39 +98,81 @@ function HomeScreen(props: Props) {
         <View style={styles.topSwitch}>
           <Text style={styles.pricingText}>EUR</Text>
           <Switch
-            onValueChange={status =>
-              exchangeRates.setCurrency(status ? 'USD' : 'EUR')
-            }
+            onValueChange={status => {
+              exchangeRates.setCurrency(status ? 'USD' : 'EUR');
+              setActiveInnerTab('usd');
+            }}
             value={exchangeRates.currency === 'USD'}
           />
           <Text style={styles.pricingText}>USD</Text>
         </View>
 
-        {activeTab === 'usd' && (
+        {(activeTab === 'usd' || activeTab === 'doge') && (
           <React.Fragment>
-            <TopBalance
-              type="usd"
-              balanceDiff={
-                stats === null
-                  ? 0
-                  : stats.data.market_price_usd_change_24h_percentage
-              }
-            />
-            <TotalChart type="usd" />
-          </React.Fragment>
-        )}
+            {activeInnerTab === 'doge' ? (
+              <React.Fragment>
+                <TopBalance
+                  type="doge"
+                  balanceDiff={
+                    stats === null
+                      ? 0
+                      : stats.data.market_price_usd_change_24h_percentage
+                  }
+                />
+                <TotalChart type="doge" />
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <TopBalance
+                  type="usd"
+                  balanceDiff={
+                    stats === null
+                      ? 0
+                      : stats.data.market_price_usd_change_24h_percentage
+                  }
+                />
+                <TotalChart type="usd" />
+              </React.Fragment>
+            )}
 
-        {activeTab === 'doge' && (
-          <React.Fragment>
-            <TopBalance
-              type="doge"
-              balanceDiff={
-                stats === null
-                  ? 0
-                  : stats.data.market_price_usd_change_24h_percentage
-              }
-            />
-            <TotalChart type="doge" />
+            <View style={styles.tabInnerHolder}>
+              <TouchableOpacity
+                activeOpacity={0.5}
+                onPress={() => {
+                  setActiveInnerTab('doge')
+                  setActiveTab('doge');
+                }}
+                style={
+                  activeInnerTab === 'doge' ? styles.tabActive : styles.tab
+                }>
+                <Text
+                  style={
+                    activeInnerTab === 'doge'
+                      ? styles.tabTextActive
+                      : styles.tabText
+                  }>
+                  Balance Doge
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.5}
+                onPress={() => {
+                  setActiveInnerTab('usd');
+                  setActiveTab('usd');
+                }}
+                style={
+                  activeInnerTab === 'usd' ? styles.tabActive : styles.tab
+                }>
+                <Text
+                  style={
+                    activeInnerTab === 'usd'
+                      ? styles.tabTextActive
+                      : styles.tabText
+                  }>
+                  Balance {exchangeRates.currency}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </React.Fragment>
         )}
 
@@ -185,24 +229,13 @@ function HomeScreen(props: Props) {
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.5}
-            onPress={() => setActiveTab('doge')}
-            style={activeTab === 'doge' ? styles.tabActive : styles.tab}>
-            <Text
-              style={
-                activeTab === 'doge' ? styles.tabTextActive : styles.tabText
-              }>
-              Balance Doge
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.5}
             onPress={() => setActiveTab('usd')}
-            style={activeTab === 'usd' ? styles.tabActive : styles.tab}>
+            style={(activeTab === 'usd' || activeTab === 'doge') ? styles.tabActive : styles.tab}>
             <Text
               style={
-                activeTab === 'usd' ? styles.tabTextActive : styles.tabText
+                (activeTab === 'usd' || activeTab === 'doge') ? styles.tabTextActive : styles.tabText
               }>
-              Balance {exchangeRates.currency}
+              Balance
             </Text>
           </TouchableOpacity>
         </View>
@@ -278,6 +311,11 @@ const styles = StyleSheet.create({
   tabsHolder: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  tabInnerHolder: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 10,
   },
   tabTextActive: {
     fontSize: 17,

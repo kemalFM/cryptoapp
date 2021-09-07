@@ -7,7 +7,7 @@
  */
 
 import React, {useCallback, useEffect, useState} from 'react';
-import {Dimensions, StyleSheet, View} from 'react-native';
+import { Dimensions, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import {LineChart} from 'react-native-chart-kit';
 import {useWallet} from '../../State/WalletState';
 import {ReadTransactions} from '../../FileOperations/ReadTransactions';
@@ -20,11 +20,14 @@ interface Props {
   type: 'usd' | 'doge';
 }
 
+const windowWidth = Dimensions.get('window').width;
+
 function TotalChart(props: Props) {
   const [transactions, setTransactions] = useState<
     {date: string; value: number}[]
   >([]);
   const walletID = useWallet(state => state.id);
+  const [isLoading, setIsLoading] = useState(true);
 
   /**
    * This is the function that reads the transactions as well as wallet details from storage
@@ -97,8 +100,21 @@ function TotalChart(props: Props) {
     readTransaction().then(undefined);
   }, [readTransaction, walletID]);
 
+  useEffect(() => {
+
+    if(isLoading){
+      if(transactions.length > 0){
+        setIsLoading(false);
+      }
+    }
+
+  }, [isLoading, transactions]);
+
   return (
     <View>
+      {isLoading && (
+        <Text style={styles.loadingChart}>Loading...</Text>
+      )}
       <LineChart
         data={{
           labels:
@@ -112,7 +128,7 @@ function TotalChart(props: Props) {
                   ? transactions.map(transaction =>
                       props.type === 'usd'
                         ? transaction.value
-                        : Number(DogePriceFixer(transaction.value, true)),
+                        : !isNaN(Number(DogePriceFixer(transaction.value, true))) ? Number(DogePriceFixer(transaction.value, true)) : 0,
                     )
                   : [0],
             },
@@ -145,6 +161,17 @@ function TotalChart(props: Props) {
 }
 
 const styles = StyleSheet.create({
+  loadingChart: {
+    width: windowWidth-40,
+    position: "absolute",
+    zIndex: 99,
+    height: 210,
+    textAlign: "center",
+    lineHeight: 210,
+    fontSize: 32,
+    fontWeight: "bold",
+    backgroundColor: "#fff"
+  },
   chartStyle: {
     marginVertical: 30,
     borderRadius: 16,
