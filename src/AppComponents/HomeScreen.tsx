@@ -143,13 +143,13 @@ function HomeScreen(props: Props) {
                   setActiveTab('doge');
                 }}
                 style={
-                  activeInnerTab === 'doge' ? styles.tabActive : styles.tab
+                  activeInnerTab === 'doge' ? styles.tabActiveInner : styles.tabInner
                 }>
                 <Text
                   style={
                     activeInnerTab === 'doge'
-                      ? styles.tabTextActive
-                      : styles.tabText
+                      ? styles.tabTextActiveInner
+                      : styles.tabTextInner
                   }>
                   Balance Doge
                 </Text>
@@ -161,13 +161,13 @@ function HomeScreen(props: Props) {
                   setActiveTab('usd');
                 }}
                 style={
-                  activeInnerTab === 'usd' ? styles.tabActive : styles.tab
+                  activeInnerTab === 'usd' ? styles.tabActiveInner : styles.tabInner
                 }>
                 <Text
                   style={
                     activeInnerTab === 'usd'
-                      ? styles.tabTextActive
-                      : styles.tabText
+                      ? styles.tabTextActiveInner
+                      : styles.tabTextInner
                   }>
                   Balance {exchangeRates.currency}
                 </Text>
@@ -312,11 +312,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  tabInnerHolder: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 10,
-  },
+
   tabTextActive: {
     fontSize: 17,
     color: '#F06E22',
@@ -336,6 +332,37 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F06E22',
     paddingBottom: 6,
     borderBottomWidth: 1,
+  },
+  tabInner: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#212121',
+    paddingBottom: 6,
+
+    paddingHorizontal: 15,
+  },
+  tabActiveInner: {
+    borderBottomColor: '#F06E22',
+    paddingBottom: 6,
+    borderBottomWidth: 1,
+    backgroundColor: 'rgba(240,110,34, 0.1)',
+    paddingHorizontal: 15,
+  },
+  tabInnerHolder: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 10,
+    backgroundColor: 'rgba(107,107,107, .1)',
+    marginHorizontal: 40,
+  },
+  tabTextActiveInner: {
+    fontSize: 17,
+    color: '#F06E22',
+    textAlign: 'center',
+  },
+  tabTextInner: {
+    fontSize: 17,
+    color: '#000',
+    textAlign: 'center',
   },
   topSwitch: {
     flexDirection: 'row',
