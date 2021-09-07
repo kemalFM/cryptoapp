@@ -37,9 +37,7 @@ export default function TopBalance(props: {
           }
         }
       })
-      .catch(err => {
-        console.log(err);
-      });
+      .catch(err => undefined);
   }, [props.type, walletState.id]);
 
   return (

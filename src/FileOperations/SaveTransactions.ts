@@ -34,9 +34,7 @@ export async function SaveToExistingFile(
     RNFS.DocumentDirectoryPath + '/' + walletID + '_transactions.crypto',
     position === 0 ? stringTransactions : '\n' + stringTransactions,
     position,
-  ).catch(err => {
-    console.log(err);
-  });
+  ).catch(err => undefined);
 }
 
 export async function SaveToEmptyFile(
@@ -48,5 +46,5 @@ export async function SaveToEmptyFile(
   await RNFS.writeFile(
     RNFS.DocumentDirectoryPath + '/' + walletID + '_transactions.crypto',
     stringTransactions,
-  ).catch(err => console.log(err));
+  ).catch(() => undefined);
 }

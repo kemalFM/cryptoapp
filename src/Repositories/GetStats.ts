@@ -33,8 +33,6 @@ export async function GetPrices(): Promise<DogePriceType | false> {
       return response.data;
     })
     .catch(err => {
-      console.log(today, oneWeekAgo);
-      console.log(err, "price chart error", err.response.data);
       return false;
     });
 }

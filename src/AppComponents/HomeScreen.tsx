@@ -41,7 +41,7 @@ type Props = {
 
 function HomeScreen(props: Props) {
   const navigation = useNavigation(props.componentId);
-  useNavigationSearchBarUpdate(console.log, props.componentId);
+  useNavigationSearchBarUpdate(() => {}, props.componentId);
   const walletState = useWallet();
   const exchangeRates = useExchangeRates();
   const [lastTransactions, setLastTransactions] = useState<TransactionType[]>(

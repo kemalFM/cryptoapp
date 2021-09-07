@@ -200,7 +200,6 @@ function LoadingTransactions() {
             } else {
               setLoaded(totalLoaded + tenTransactionHash.length);
               totalLoaded += tenTransactionHash.length;
-              console.log('error occured');
             }
             if (totalLoaded >= totalTransactions) {
               resolve();
