@@ -337,7 +337,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#212121',
     paddingBottom: 6,
-
     paddingHorizontal: 15,
   },
   tabActiveInner: {
@@ -351,8 +350,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginBottom: 10,
-    backgroundColor: 'rgba(107,107,107, .1)',
-    marginHorizontal: 40,
+    width: 260,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(107,107,107, .1)'
   },
   tabTextActiveInner: {
     fontSize: 17,
