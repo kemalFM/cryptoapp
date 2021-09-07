@@ -28,7 +28,6 @@ export async function ReadWallet(
     RNFS.DocumentDirectoryPath + '/' + walletID + '_details.crypto',
   )
     .then(data => {
-      console.log(data);
       return JSON.parse(data);
     })
     .catch(() => {

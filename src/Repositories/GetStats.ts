@@ -30,7 +30,6 @@ export async function GetPrices(): Promise<DogePriceType | false> {
       },
     })
     .then(response => {
-      console.log(response.data);
       return response.data;
     })
     .catch(err => {
