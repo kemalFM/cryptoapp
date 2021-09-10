@@ -55,6 +55,13 @@ function SettingsPage(props: {componentId: string}) {
           },
         },
         {
+          text: I18N('settings.language.hr', language.language),
+          style: 'default',
+          onPress: async () => {
+            language.setLanguage('hr');
+          },
+        },
+        {
           text: I18N('settings.language.de', language.language),
           style: 'default',
           onPress: async () => {

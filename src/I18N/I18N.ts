@@ -1,9 +1,10 @@
 import English from './packs/en.json';
 import German from './packs/de.json';
-
+import Croatia from './packs/hr.json';
 const languages = {
   en: English,
   de: German,
+  hr: Croatia,
 };
 
 interface KeywordType {
@@ -11,9 +12,11 @@ interface KeywordType {
   key: string;
 }
 
+export type languageList = 'de' | 'en' | 'hr';
+
 export function I18N(
   key: any,
-  language: 'de' | 'en',
+  language: languageList,
   keywords?: KeywordType[],
 ): string {
   // @ts-ignore

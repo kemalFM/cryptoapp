@@ -1,11 +1,12 @@
 import create from 'zustand';
+import {languageList} from '../I18N/I18N';
 
 type LanguageStateType = {
-  language: 'de' | 'en';
-  setLanguage: (language: 'en' | 'de') => void;
+  language: languageList;
+  setLanguage: (language: languageList) => void;
 };
 
 export const useLanguageState = create<LanguageStateType>(set => ({
-  language: 'de',
+  language: 'en',
   setLanguage: language => set({language}),
 }));
