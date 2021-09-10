@@ -22,12 +22,15 @@ import {useWallet} from '../State/WalletState';
 import {ReadTransactions} from '../FileOperations/ReadTransactions';
 import {TransactionType} from '../Repositories/WalletType';
 import UpArrowSVG from '../assets/uparrow.svg';
+import {I18N} from '../I18N/I18N';
+import {useLanguageState} from '../State/LanguageState';
 
 type Props = {
   componentId: string;
 };
 
 function Transactions(props: Props) {
+  const language = useLanguageState(state => state.language);
   const navigation = useNavigation(props.componentId);
 
   const walletState = useWallet();
@@ -40,7 +43,13 @@ function Transactions(props: Props) {
 
   useEffect(() => {
     navigation.mergeOptions({
+      bottomTab: {
+        text: I18N('navigation.transactions', language)
+      },
       topBar: {
+        title: {
+          text: I18N('transactions', language),
+        },
         rightButtons: [
           {
             id: 'de.kfm.TopQRCodeScanRight',
@@ -54,7 +63,7 @@ function Transactions(props: Props) {
         ],
       },
     });
-  }, []);
+  }, [navigation, language]);
 
   useEffect(() => {
     ReadTransactions(walletState.id).then(response => {
@@ -74,7 +83,7 @@ function Transactions(props: Props) {
         setBeforeSearch(transactionList);
       }
     });
-  }, []);
+  }, [walletState.id]);
 
   useNavigationSearchBarUpdate(text => {
     if (text.text.length === 0) {
@@ -130,8 +139,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     zIndex: 999,
     bottom: 10,
-    justifyContent: "center",
-    alignSelf: "center",
+    justifyContent: 'center',
+    alignSelf: 'center',
     width: 30,
     height: 30,
     borderWidth: 1,

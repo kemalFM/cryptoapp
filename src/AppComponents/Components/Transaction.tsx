@@ -3,20 +3,23 @@
  * as well as Transaction list under the second tab of the application
  */
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, {useCallback, useEffect, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {NavigationCommands} from 'react-native-navigation-hooks/dist/helpers/createNavigationCommands';
 import {TransactionType} from '../../Repositories/WalletType';
 import {ReadTransactionInfo} from '../../FileOperations/ReadTransactionInfo';
 import {useWallet} from '../../State/WalletState';
 import CalculateTransactionValue from './CalculateTransactionValue';
-import { TransactionInfo } from "../../Repositories/TransactionInfoType";
+import {TransactionInfo} from '../../Repositories/TransactionInfoType';
+import {I18N} from '../../I18N/I18N';
+import {useLanguageState} from '../../State/LanguageState';
 
 export default function Transaction(props: {
   status: boolean;
   navigation: NavigationCommands;
   transaction: TransactionType;
 }) {
+  const language = useLanguageState(state => state.language);
   const [totalInUSD, setTotalInUSD] = useState(0);
   const walletID = useWallet(state => state.id);
 
@@ -30,27 +33,29 @@ export default function Transaction(props: {
     });
   }, [props.transaction.hash, walletID]);
 
-  const handleReturnedTransaction = useCallback((transactionInfo: TransactionInfo | null) => {
-
-    if(transactionInfo === null)
-      return;
-
-    ReadTransactionInfo(transactionInfo.hash).then(response => {
-      if (response !== false) {
-          setTotalInUSD(
-          CalculateTransactionValue(props.transaction, response, walletID),
-        );
+  const handleReturnedTransaction = useCallback(
+    (transactionInfo: TransactionInfo | null) => {
+      if (transactionInfo === null) {
+        return;
       }
-    });
 
-  }, []);
+      ReadTransactionInfo(transactionInfo.hash).then(response => {
+        if (response !== false) {
+          setTotalInUSD(
+            CalculateTransactionValue(props.transaction, response, walletID),
+          );
+        }
+      });
+    },
+    [],
+  );
 
   return (
     <TouchableOpacity
       onPress={() =>
         props.navigation.push('de.kfm.TransactionDetails', {
           transaction: props.transaction,
-          sendNewTransaction: handleReturnedTransaction
+          sendNewTransaction: handleReturnedTransaction,
         })
       }
       style={
@@ -60,7 +65,9 @@ export default function Transaction(props: {
       }>
       <Text style={styles.transactionTime}>{props.transaction.time}</Text>
       <View style={styles.receiveSendHolder}>
-        <Text style={styles.receiveSendText}>Block ID</Text>
+        <Text style={styles.receiveSendText}>
+          {I18N('transaction.blockID', language)}
+        </Text>
         <Text style={styles.transactionID}>{props.transaction.block_id}</Text>
       </View>
       <View

@@ -10,8 +10,11 @@ import {ReadWallet} from '../../FileOperations/ReadWalletDetails';
 import {useWallet} from '../../State/WalletState';
 import {useExchangeRates} from '../../State/ExchangeRates';
 import PriceConverter from './PriceConverter';
+import {I18N} from '../../I18N/I18N';
+import {useLanguageState} from '../../State/LanguageState';
 
 export default function ProfitCalculator() {
+  const language = useLanguageState(state => state.language);
   const [loading, setLoading] = useState(true);
   const [estimatedProfit, setEstimatedProfit] = useState(0);
   const exchangeRates = useExchangeRates();
@@ -42,10 +45,12 @@ export default function ProfitCalculator() {
 
   return (
     <View style={styles.holder}>
-      <Text style={styles.taxFree}>Total Estimated Profit</Text>
+      <Text style={styles.taxFree}>
+        {I18N('totalEstimatedProfit', language)}
+      </Text>
       <Text style={styles.text}>
         {loading
-          ? 'Calculating...'
+          ? I18N('profitCalculator.calculating', language)
           : new Intl.NumberFormat('en-US', {
               currency: exchangeRates.currency,
               minimumFractionDigits: 2,

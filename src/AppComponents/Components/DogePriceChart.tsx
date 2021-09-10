@@ -7,6 +7,7 @@
  * For getting latest dogecoin prices, app is using the same api as we get transactions which can be found under
  * /Repositories/GetStats.ts*GetPrices();
  *
+ *
  */
 
 import {LineChart} from 'react-native-chart-kit';
@@ -15,11 +16,14 @@ import React, {useEffect} from 'react';
 import {GetPrices} from '../../Repositories/GetStats';
 import ArrowSVG from '../../assets/arrow.svg';
 import {useDogePrices} from '../../State/DogePrices';
+import {useLanguageState} from '../../State/LanguageState';
+import {I18N} from '../../I18N/I18N';
 
 export default function DogePriceChart(props: {
   currentPrice: number;
   balanceDiff: number;
 }) {
+  const language = useLanguageState(state => state.language);
   const dogePrices = useDogePrices();
 
   /**
@@ -38,7 +42,9 @@ export default function DogePriceChart(props: {
     <View style={styles.topHolder}>
       <View style={styles.balanceHolder}>
         <View style={styles.balanceLeftHolder}>
-          <Text style={styles.balanceText}>Current Price</Text>
+          <Text style={styles.balanceText}>
+            {I18N('dogePrice.current', language)}
+          </Text>
           <View style={styles.balanceTotalAndCurrency}>
             <Text style={styles.balanceTotal}>{props.currentPrice}</Text>
             <Text style={styles.balanceCurrency}>USD</Text>

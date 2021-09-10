@@ -4,6 +4,7 @@
  * @param digits
  * Formatting long numbers with well known endings which are
  * K, M, G , T , P ,E
+ *
  */
 export function nFormatter(num: number, digits: number) {
   const lookup = [

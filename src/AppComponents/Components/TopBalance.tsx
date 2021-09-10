@@ -3,7 +3,7 @@
  * in DOGECoins
  * in USD
  * in EUR
- * Also shows the percentage changed on DOGEcoin price on the right side of the view.
+ * Also shows the percentage changed on DogeCoin price on the right side of the view.
  */
 
 import {StyleSheet, Text, View} from 'react-native';
@@ -15,11 +15,14 @@ import {AddressType} from '../../Repositories/WalletType';
 import DogePriceFixer from './DogePriceFixer';
 import {useExchangeRates} from '../../State/ExchangeRates';
 import PriceConverter from './PriceConverter';
+import {I18N} from '../../I18N/I18N';
+import {useLanguageState} from '../../State/LanguageState';
 
 export default function TopBalance(props: {
   balanceDiff: number;
   type: 'doge' | 'usd';
 }) {
+  const language = useLanguageState(state => state.language);
   const walletState = useWallet();
   const [balance, setBalance] = useState(0);
 
@@ -37,13 +40,15 @@ export default function TopBalance(props: {
           }
         }
       })
-      .catch(err => undefined);
+      .catch(() => undefined);
   }, [props.type, walletState.id]);
 
   return (
     <View style={styles.balanceHolder}>
       <View style={styles.balanceLeftHolder}>
-        <Text style={styles.balanceText}>Balance</Text>
+        <Text style={styles.balanceText}>
+          {I18N('topBalance.balance', language)}
+        </Text>
         <View style={styles.balanceTotalAndCurrency}>
           <Text style={styles.balanceTotal}>
             {props.type === 'doge'

@@ -34,12 +34,15 @@ import TaxFreeCalculator from './Components/TaxFreeCalculator';
 import DogePriceChart from './Components/DogePriceChart';
 import {useExchangeRates} from '../State/ExchangeRates';
 import ProfitCalculator from './Components/ProfitCalculator';
+import {useLanguageState} from '../State/LanguageState';
+import {I18N} from '../I18N/I18N';
 
 type Props = {
   componentId: string;
 };
 
 function HomeScreen(props: Props) {
+  const language = useLanguageState(state => state.language);
   const navigation = useNavigation(props.componentId);
   useNavigationSearchBarUpdate(() => {}, props.componentId);
   const walletState = useWallet();
@@ -54,6 +57,19 @@ function HomeScreen(props: Props) {
   );
 
   const [activeInnerTab, setActiveInnerTab] = useState<'doge' | 'usd'>('doge');
+
+  useEffect(() => {
+    navigation.mergeOptions({
+      topBar: {
+        title: {
+          text: I18N('homeScreen.topText', language),
+        },
+      },
+      bottomTab: {
+        text: I18N('navigation.home', language)
+      }
+    });
+  }, [language, navigation]);
 
   useEffect(() => {
     ReadTransactions(walletState.id).then(response => {
@@ -139,11 +155,13 @@ function HomeScreen(props: Props) {
               <TouchableOpacity
                 activeOpacity={0.5}
                 onPress={() => {
-                  setActiveInnerTab('doge')
+                  setActiveInnerTab('doge');
                   setActiveTab('doge');
                 }}
                 style={
-                  activeInnerTab === 'doge' ? styles.tabActiveInner : styles.tabInner
+                  activeInnerTab === 'doge'
+                    ? styles.tabActiveInner
+                    : styles.tabInner
                 }>
                 <Text
                   style={
@@ -151,7 +169,7 @@ function HomeScreen(props: Props) {
                       ? styles.tabTextActiveInner
                       : styles.tabTextInner
                   }>
-                  Balance Doge
+                  {I18N('homeScreen.balanceDoge', language)}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -161,7 +179,9 @@ function HomeScreen(props: Props) {
                   setActiveTab('usd');
                 }}
                 style={
-                  activeInnerTab === 'usd' ? styles.tabActiveInner : styles.tabInner
+                  activeInnerTab === 'usd'
+                    ? styles.tabActiveInner
+                    : styles.tabInner
                 }>
                 <Text
                   style={
@@ -169,7 +189,8 @@ function HomeScreen(props: Props) {
                       ? styles.tabTextActiveInner
                       : styles.tabTextInner
                   }>
-                  Balance {exchangeRates.currency}
+                  {I18N('homeScreen.balance', language)}{' '}
+                  {exchangeRates.currency}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -213,7 +234,7 @@ function HomeScreen(props: Props) {
               style={
                 activeTab === 'profit' ? styles.tabTextActive : styles.tabText
               }>
-              Profit
+              {I18N('homeScreen.profit', language)}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -224,23 +245,29 @@ function HomeScreen(props: Props) {
               style={
                 activeTab === 'tax' ? styles.tabTextActive : styles.tabText
               }>
-              Tax Free
+              {I18N('homeScreen.taxFree', language)}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.5}
             onPress={() => setActiveTab('usd')}
-            style={(activeTab === 'usd' || activeTab === 'doge') ? styles.tabActive : styles.tab}>
+            style={
+              activeTab === 'usd' || activeTab === 'doge'
+                ? styles.tabActive
+                : styles.tab
+            }>
             <Text
               style={
-                (activeTab === 'usd' || activeTab === 'doge') ? styles.tabTextActive : styles.tabText
+                activeTab === 'usd' || activeTab === 'doge'
+                  ? styles.tabTextActive
+                  : styles.tabText
               }>
-              Balance
+              {I18N('homeScreen.balance', language)}
             </Text>
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.transactionText}>Last 5 Transactions</Text>
+        <Text style={styles.transactionText}>{I18N('homeScreen.last5', language)}</Text>
         {lastTransactions.map(transaction => (
           <Transaction
             key={transaction.hash}
@@ -258,7 +285,9 @@ function HomeScreen(props: Props) {
               },
             })
           }>
-          <Text style={styles.buttonText}>Show More</Text>
+          <Text style={styles.buttonText}>
+            {I18N('homeScreen.showMore', language)}
+          </Text>
         </TouchableOpacity>
 
         <DogePriceChart
@@ -352,7 +381,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: 260,
     alignSelf: 'center',
-    backgroundColor: 'rgba(107,107,107, .1)'
+    backgroundColor: 'rgba(107,107,107, .1)',
   },
   tabTextActiveInner: {
     fontSize: 17,

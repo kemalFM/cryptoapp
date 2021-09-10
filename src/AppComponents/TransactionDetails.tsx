@@ -19,6 +19,8 @@ import {ReadTransactionInfo} from '../FileOperations/ReadTransactionInfo';
 import {SaveTransactionInfo} from '../FileOperations/SaveTransactionInfo';
 import CalculateTransactionValue from './Components/CalculateTransactionValue';
 import {useNavigationScreenPop} from 'react-native-navigation-hooks';
+import {useLanguageState} from '../State/LanguageState';
+import {I18N} from '../I18N/I18N';
 
 type Props = {
   componentId: string;
@@ -27,6 +29,8 @@ type Props = {
 };
 
 function TransactionDetails(props: Props) {
+  const language = useLanguageState(state => state.language);
+
   const walletID = useWallet(state => state.id);
 
   const [transactionInfo, setTransactionInfo] =
@@ -97,12 +101,14 @@ function TransactionDetails(props: Props) {
   return (
     <View style={styles.holder}>
       <View style={styles.item}>
-        <Text style={styles.itemName}>BLOCK ID</Text>
+        <Text style={styles.itemName}>
+          {I18N('transactionDetails.blockID', language)}
+        </Text>
         <Text style={styles.itemDescription}>{props.transaction.block_id}</Text>
       </View>
 
       <View style={styles.item}>
-        <Text style={styles.itemName}>TIME</Text>
+        <Text style={styles.itemName}>{I18N('transactionDetails.time', language)}</Text>
         <View>
           <Text style={styles.itemDescription}>
             {props.transaction.time.split(' ')[0]}
@@ -114,7 +120,9 @@ function TransactionDetails(props: Props) {
       </View>
 
       <View style={styles.item}>
-        <Text style={styles.itemName}>AMOUNT</Text>
+        <Text style={styles.itemName}>
+          {I18N('transactionDetails.amount', language)}
+        </Text>
         <View>
           <View style={styles.priceHolder}>
             <Text style={styles.itemDescription}>
@@ -137,7 +145,9 @@ function TransactionDetails(props: Props) {
         </View>
       </View>
       <View style={styles.item}>
-        <Text style={styles.itemName}>FEE</Text>
+        <Text style={styles.itemName}>
+          {I18N('transactionDetails.fee', language)}
+        </Text>
         <View style={styles.priceHolder}>
           <Text style={styles.itemDescription}>
             {loading ? (

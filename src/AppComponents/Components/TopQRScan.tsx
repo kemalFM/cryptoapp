@@ -42,7 +42,6 @@ export default function TopQRScan(props: {navigation: NavigationCommands}) {
     return await checkOnline(hash);
   }, []);
 
-
   /**
    * Checking if the transaction exists on DogeChain
    */
@@ -66,7 +65,7 @@ export default function TopQRScan(props: {navigation: NavigationCommands}) {
         onPress={() => {
           showModal('de.kfm.QRCodeScanner', {
             onBarCodeRead: onReadTransaction,
-            type: 'Transaction Hash',
+            type: 'transactionHash',
           });
         }}
         style={styles.position}>

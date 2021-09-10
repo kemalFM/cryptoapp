@@ -20,8 +20,11 @@ import ValidateWallet from '../Repositories/ValidateWallet';
 import {LoadTransactionsRoute} from '../../AppRoutes';
 import {useWallet} from '../State/WalletState';
 import {getWalletID, storeWalletID} from '../State/WalletStore';
+import {useLanguageState} from '../State/LanguageState';
+import {I18N} from '../I18N/I18N';
 
 function WelcomeScreen() {
+  const language = useLanguageState(state => state.language);
   const [walletID, setWalletID] = useState('');
 
   const walletState = useWallet();
@@ -45,8 +48,10 @@ function WelcomeScreen() {
       } else {
         if (!checkWallet) {
           Alert.alert(
-            'Wallet Not Found',
-            'Sorry we could not verify your WalletID. Please try again',
+            I18N('QRScanner.walletNotFound', language),
+            I18N('QRScanner.weCouldNotVerify', language, [
+              {key: 'type', value: I18N('QR.Scanner.wallet', language)},
+            ]),
           );
           return;
         } else {
@@ -56,7 +61,7 @@ function WelcomeScreen() {
         }
       }
     },
-    [walletID],
+    [walletID, language],
   );
 
   useEffect(() => {
@@ -85,17 +90,16 @@ function WelcomeScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <DogeCoinSVG style={styles.logo} />
 
-        <Text style={styles.headline}>Headline Placeholder</Text>
+        <Text style={styles.headline}>{I18N('welcomeScreen.headlineTitle', language)}</Text>
 
         <Text style={styles.headlineText}>
-          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-          nonumy eirmod tempor invidunt.
+          {I18N('welcomeScreen.headlineText', language)}
         </Text>
 
         <TextInput
           onChangeText={setWalletID}
           style={styles.walletIDInput}
-          placeholder="Enter your wallet ID"
+          placeholder={I18N('welcomeScreen.enterWallet', language)}
         />
 
         <TouchableOpacity
@@ -109,9 +113,9 @@ function WelcomeScreen() {
               : () => checkWalletID()
           }>
           {walletID === '' ? (
-            <Text style={styles.buttonText}>Scan QR Code</Text>
+            <Text style={styles.buttonText}>{I18N('welcomeScreen.scan', language)}</Text>
           ) : (
-            <Text style={styles.buttonText}>Continue</Text>
+            <Text style={styles.buttonText}>{I18N('welcomeScreen.continue', language)}</Text>
           )}
         </TouchableOpacity>
       </KeyboardAvoidingView>

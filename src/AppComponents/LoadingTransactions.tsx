@@ -23,8 +23,11 @@ import {GetMultipleTransactionInfo} from '../Repositories/GetTransactionInfo';
 import {SaveTransactionInfo} from '../FileOperations/SaveTransactionInfo';
 import GetExchangeRates from '../Repositories/ExchangeRates';
 import {useExchangeRates} from '../State/ExchangeRates';
+import { I18N } from "../I18N/I18N";
+import { useLanguageState } from "../State/LanguageState";
 
 function LoadingTransactions() {
+  const language = useLanguageState(state => state.language);
   const walletState = useWallet();
   const exchangeRatesState = useExchangeRates();
   const [transactionCount, setTransactionCount] = useState<number>(0);
@@ -153,11 +156,11 @@ function LoadingTransactions() {
       }
     } else {
       Alert.alert(
-        'Error',
-        'We are having trouble to access your wallet data, please try again later',
+        I18N('error', language),
+        I18N('loadingTransactions.errorConnection', language),
       );
     }
-  }, [walletState]);
+  }, [walletState, language]);
 
   const loadTransactionDetails = useCallback(
     async (transactionsToGet?: string[]) => {
@@ -239,8 +242,8 @@ function LoadingTransactions() {
 
         <Text style={styles.actionText}>
           {gettingTransactionsInfo
-            ? 'Getting Transaction Details'
-            : 'Getting Wallet Information'}
+            ? I18N('loadingTransactions.gettingDetails', language)
+            : I18N('loadingTransactions.gettingWallet', language)}
         </Text>
         <View style={styles.progressBar}>
           <View
@@ -251,7 +254,7 @@ function LoadingTransactions() {
           />
           <Text style={styles.transactionCount}>
             {loaded === 0
-              ? 'Please Wait...'
+              ? I18N('loadingTransactions.pleaseWait', language)
               : `${loaded} / ${transactionCount}`}
           </Text>
         </View>

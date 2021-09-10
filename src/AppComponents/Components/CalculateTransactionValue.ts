@@ -63,6 +63,7 @@ export default function CalculateTransactionValue(
    * We are checking if the balance change which can be minus or plus depending on the transaction and if we are putting more than we receive
    * We should be paying the transaction fee
    * And also calculating the money which we sent to others than our wallet id.
+   *
    * */
 
   if (transaction.balance_change < 0) {

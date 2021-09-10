@@ -1,13 +1,13 @@
 /**
- * This view is on home page that shows balance change in dogecoins as well as
+ * This view is on home page that shows balance change in DogeCoins as well as
  * in United States Dollars
  * The usage is just by sending type as 'usd' or 'doge' refereed in the prop types
- * It uses the chart library for react native, documantation can be found under this url
+ * It uses the chart library for react native, documentation can be found under this url
  * https://github.com/indiespirit/react-native-chart-kit
  */
 
 import React, {useCallback, useEffect, useState} from 'react';
-import { Dimensions, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import {Dimensions, StyleSheet, Text, View} from 'react-native';
 import {LineChart} from 'react-native-chart-kit';
 import {useWallet} from '../../State/WalletState';
 import {ReadTransactions} from '../../FileOperations/ReadTransactions';
@@ -101,20 +101,16 @@ function TotalChart(props: Props) {
   }, [readTransaction, walletID]);
 
   useEffect(() => {
-
-    if(isLoading){
-      if(transactions.length > 0){
+    if (isLoading) {
+      if (transactions.length > 0) {
         setIsLoading(false);
       }
     }
-
   }, [isLoading, transactions]);
 
   return (
     <View>
-      {isLoading && (
-        <Text style={styles.loadingChart}>Loading...</Text>
-      )}
+      {isLoading && <Text style={styles.loadingChart}>Loading...</Text>}
       <LineChart
         data={{
           labels:
@@ -128,7 +124,11 @@ function TotalChart(props: Props) {
                   ? transactions.map(transaction =>
                       props.type === 'usd'
                         ? transaction.value
-                        : !isNaN(Number(DogePriceFixer(transaction.value, true))) ? Number(DogePriceFixer(transaction.value, true)) : 0,
+                        : !isNaN(
+                            Number(DogePriceFixer(transaction.value, true)),
+                          )
+                        ? Number(DogePriceFixer(transaction.value, true))
+                        : 0,
                     )
                   : [0],
             },
@@ -162,15 +162,15 @@ function TotalChart(props: Props) {
 
 const styles = StyleSheet.create({
   loadingChart: {
-    width: windowWidth-40,
-    position: "absolute",
+    width: windowWidth - 40,
+    position: 'absolute',
     zIndex: 99,
     height: 210,
-    textAlign: "center",
+    textAlign: 'center',
     lineHeight: 210,
     fontSize: 32,
-    fontWeight: "bold",
-    backgroundColor: "#fff"
+    fontWeight: 'bold',
+    backgroundColor: '#fff',
   },
   chartStyle: {
     marginVertical: 30,

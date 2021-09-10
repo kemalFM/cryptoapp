@@ -13,6 +13,7 @@ export type TransactionType = {
   time: string;
   balance_change: number;
 };
+
 export type AddressType = {
   type: string;
   script_hex: string;

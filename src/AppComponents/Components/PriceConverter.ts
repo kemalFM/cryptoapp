@@ -6,6 +6,7 @@
  * This function changes currency of the number
  * The base currency is United States Dollars
  * Currently only supports changing to EUR
+ *
  */
 
 export default function PriceConverter(
@@ -17,7 +18,9 @@ export default function PriceConverter(
     return basePrice;
   }
 
+  // @ts-ignore
   const eurPrice = rates[0]['2'].buying;
+  // @ts-ignore
   const usdPrice = rates[0]['1'].buying;
 
   const exchangeRate = eurPrice / usdPrice;
@@ -28,7 +31,6 @@ export default function PriceConverter(
     return basePrice * exchangeRate;
   }
 }
-
 
 export type ExRateType = {
   [key: number]: {

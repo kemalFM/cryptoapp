@@ -49,26 +49,25 @@ export const AppComponentRoutes: LayoutRoot = {
         },
         {
           stack: {
-            id: 'de.kfm.HomeScreenTab',
+            id: 'de.kfm.Settings',
             children: [
               {
                 component: {
-                  name: 'de.kfm.HomeScreen',
+                  name: 'de.kfm.Settings',
                 },
               },
             ],
             options: {
               topBar: {
                 searchBar: {
-                  visible: true,
+                  visible: false,
                   hideOnScroll: true,
                   hideTopBarOnFocus: true
                 }
               },
               bottomTab: {
-                text: 'Logout',
-                icon: require('./src/assets/logout.png'),
-                selectTabOnPress: false,
+                text: 'Settings',
+                icon: require('./src/assets/settings.png')
               },
             },
           },

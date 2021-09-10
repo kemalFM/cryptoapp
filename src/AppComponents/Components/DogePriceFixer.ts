@@ -8,6 +8,7 @@
  * If the requested dogecoin is in number this function returns as Number,
  * if the number is not provided or set to false returns Number formatted string
  *
+ *
  */
 
 export default function DogePriceFixer(

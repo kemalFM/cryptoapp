@@ -11,6 +11,8 @@ import {BarCodeReadEvent, RNCamera} from 'react-native-camera';
 import {useNavigation} from 'react-native-navigation-hooks';
 import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import CloseSVG from '../assets/close.svg';
+import {useLanguageState} from '../State/LanguageState';
+import {I18N} from '../I18N/I18N';
 
 type Props = {
   componentId: string;
@@ -19,6 +21,7 @@ type Props = {
 };
 
 function QRCodeScanner(props: Props) {
+  const language = useLanguageState(state => state.language);
   const navigation = useNavigation(props.componentId);
   const [reading, setReading] = useState(true);
 
@@ -36,18 +39,38 @@ function QRCodeScanner(props: Props) {
 
       if (!readStatus) {
         await Alert.alert(
-          'Wallet Not Found',
-          `Sorry we could not verify your ${
-            props.type === undefined ? 'Wallet ID' : props.type
-          }. Please try again`,
-          [{text: 'OK', onPress: () => setReading(true)}],
+          I18N(
+            props.type === 'transactionHash'
+              ? 'QRScanner.hashNotFound'
+              : 'QRScanner.walletNotFound',
+            language,
+          ),
+          I18N('QRScanner.weCouldNotVerify', language, [
+            {
+              key: 'type',
+              value: I18N(
+                `QRScanner.${
+                  props.type === 'transactionHash'
+                    ? 'transactionHash'
+                    : 'wallet'
+                }`,
+                language,
+              ),
+            },
+          ]),
+          [
+            {
+              text: I18N('QRScanner.OKButton', language),
+              onPress: () => setReading(true),
+            },
+          ],
           {cancelable: false},
         );
       } else {
         await navigation.dismissModal();
       }
     },
-    [props, navigation],
+    [props, navigation, language],
   );
 
   return (
@@ -65,7 +88,9 @@ function QRCodeScanner(props: Props) {
       </TouchableOpacity>
       {!reading && (
         <View style={styles.loadingHolder}>
-          <Text style={styles.loadingText}>Loading...</Text>
+          <Text style={styles.loadingText}>
+            {I18N('QRScanner.loading', language)}
+          </Text>
         </View>
       )}
     </RNCamera>
