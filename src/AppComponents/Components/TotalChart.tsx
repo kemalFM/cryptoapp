@@ -15,6 +15,7 @@ import {ReadTransactionInfo} from '../../FileOperations/ReadTransactionInfo';
 import {ReadWalletDetails} from '../../FileOperations/ReadWalletDetails';
 import {nFormatter} from './NumberFormetter';
 import DogePriceFixer from './DogePriceFixer';
+import CalculateTransactionValue from './CalculateTransactionValue';
 
 interface Props {
   type: 'usd' | 'doge';
@@ -48,19 +49,22 @@ function TotalChart(props: Props) {
 
     if (transactionList) {
       let transactionResponse = transactionList;
-      transactionResponse.splice(10, transactionResponse.length);
-      const transactionMap: {date: string; value: number}[] = [];
+      transactionResponse.splice(7, transactionResponse.length);
+      const transactionMap: {
+        date: string;
+        value: number;
+        balance_change: number;
+      }[] = [];
       for (const transaction of transactionResponse) {
         if (props.type === 'usd') {
           const transactionInfo = await ReadTransactionInfo(transaction.hash);
           if (transactionInfo) {
             let total = 0;
-            transactionInfo.inputs
-              .filter(inputList => inputList.recipient === walletID)
-              .forEach(input => (total -= input.value_usd));
-            transactionInfo.outputs
-              .filter(outputList => outputList.recipient === walletID)
-              .forEach(output => (total += output.value_usd));
+            total = CalculateTransactionValue(
+              transaction,
+              transactionInfo,
+              walletID,
+            );
 
             transactionMap.push({
               date:
@@ -69,28 +73,89 @@ function TotalChart(props: Props) {
                 (Number(new Date(transactionInfo.transaction.date).getMonth()) +
                   1),
               value: total,
+              balance_change: total,
             });
           }
         } else {
+          console.log(transaction.balance_change);
           transactionMap.push({
             date:
               new Date(transaction.time.split(' ')[0]).getDate() +
               '/' +
               (Number(new Date(transaction.time.split(' ')[0]).getMonth()) + 1),
-            value: transaction.balance_change,
+            value: 0,
+            balance_change: transaction.balance_change,
           });
         }
       }
 
-      transactionMap.map((transaction, index) => {
-        if (index !== 0) {
-          transaction.value += transactionMap[index - 1].value;
-        } else {
-          transaction.value = balance;
-        }
+      // if(transactionMap[0].value > 0){
+      //   transactionMap[1].value = balance - transactionMap[0].value;
+      // }else{
+      //   transactionMap[1].value = balance + Math.abs(transactionMap[0].value);
+      // }
+      transactionMap[0].value = balance;
 
-        return transaction;
+      // transactionMap.map((transaction, index) => {
+      //
+      //   if(index === 0)
+      //     return transaction;
+      //
+      //   if(transaction.value < 0){
+      //     transaction.value = transactionMap[index - 1].value;
+      //   }else{
+      //
+      //   }
+      //
+      //   return transaction;
+      // });
+
+      transactionMap.map((transaction, index) => {
+        if (index === 0) {
+          transaction.value = balance;
+          if (transaction.balance_change < 0) {
+            transactionMap[index + 1].value =
+              balance + Math.abs(transaction.balance_change);
+          } else {
+            transactionMap[index + 1].value =
+              balance - Math.abs(transaction.balance_change);
+          }
+
+          return transaction;
+        }
+        if (transactionMap[index + 1] !== undefined) {
+          if (transaction.balance_change < 0) {
+            transactionMap[index + 1].value =
+              transaction.value + Math.abs(transaction.balance_change);
+          } else {
+            transactionMap[index + 1].value =
+              transaction.value - transaction.balance_change;
+          }
+        }
       });
+
+      // transactionMap.map((transaction, index) => {
+      //   console.log(transaction, (transactionMap[index - 1]?.value));
+      //   if (index > 1) {
+      //     if(transaction.value < 0){
+      //       transaction.value = transactionMap[index - 1]?.value - Math.abs(transaction.value);
+      //     }else{
+      //       transaction.value = (transactionMap[index - 1]?.value - transaction.value);
+      //     }
+      //   } else if (index === 1){
+      //
+      //   } else {
+      //     if(transaction.value > 0){
+      //       transactionMap[index + 1].value = balance - transaction.value;
+      //     }else{
+      //       transactionMap[index + 1].value = balance + Math.abs(transaction.value);
+      //     }
+      //     transaction.value = balance;
+      //   }
+      //   console.log(transaction.date, transaction.value);
+      //
+      //   return transaction;
+      // });
 
       setTransactions(transactionMap.reverse());
     }
@@ -137,7 +202,7 @@ function TotalChart(props: Props) {
         width={Dimensions.get('window').width - 50}
         height={180}
         yAxisLabel={props.type === 'usd' ? '$' : ''}
-        formatYLabel={label => nFormatter(Number(label), 1)}
+        formatYLabel={label => nFormatter(Number(label), 2)}
         yAxisInterval={1}
         withDots={false}
         chartConfig={{
