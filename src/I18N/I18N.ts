@@ -24,7 +24,7 @@ export function I18N(
   //Converting {keyword vals}
   if (keywords != undefined) {
     keywords.forEach(keyword => {
-      i18nText = i18nText.replaceAll(`{${keyword.key}}`, keyword.value);
+      i18nText = i18nText?.replaceAll(`{${keyword.key}}`, keyword.value);
     });
   }
   return i18nText;
