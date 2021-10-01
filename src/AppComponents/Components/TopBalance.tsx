@@ -17,6 +17,7 @@ import {useExchangeRates} from '../../State/ExchangeRates';
 import PriceConverter from './PriceConverter';
 import {I18N} from '../../I18N/I18N';
 import {useLanguageState} from '../../State/LanguageState';
+import NumberFormat from "react-number-format";
 
 export default function TopBalance(props: {
   balanceDiff: number;
@@ -53,44 +54,57 @@ export default function TopBalance(props: {
           <Text style={styles.balanceTotal}>
             {props.type === 'doge'
               ? DogePriceFixer(balance)
-              : new Intl.NumberFormat('en-US', {
-                  currency: exchangeRates.currency,
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }).format(
-                  PriceConverter(
-                    balance,
-                    exchangeRates.currency,
-                    exchangeRates.rates,
-                  ),
+              : <NumberFormat
+                value={PriceConverter(
+                  balance,
+                  exchangeRates.currency,
+                  exchangeRates.rates,
                 )}
+                displayType={'text'}
+                thousandSeparator={exchangeRates.currency === 'EUR' ? '.' : ','}
+                decimalSeparator={exchangeRates.currency === 'EUR' ? ',' : '.'}
+                decimalScale={2}
+                renderText={text => <Text style={styles.balanceTotal}>{text}</Text>}
+              />
+            }
           </Text>
           <Text style={styles.balanceCurrency}>
             {props.type === 'doge' ? 'DOGE' : exchangeRates.currency}
           </Text>
         </View>
       </View>
-      <View style={styles.arrowAndPercentage}>
-        <ArrowSVG
-          fill={props.balanceDiff < 0 ? '#D94D57' : '#248E38'}
-          style={{
-            transform: [{rotate: props.balanceDiff < 0 ? '0deg' : '180deg'}],
-            ...styles.arrowStyle,
-          }}
-        />
-        <Text
-          style={
-            props.balanceDiff < 0
-              ? styles.balanceDiffMinus
-              : styles.balanceDiffPlus
-          }>
-          {props.balanceDiff.toFixed(2)} %
-        </Text>
-      </View>
+      {/*<View style={styles.arrowAndPercentage}>*/}
+      {/*  <ArrowSVG*/}
+      {/*    fill={props.balanceDiff < 0 ? '#D94D57' : '#248E38'}*/}
+      {/*    style={{*/}
+      {/*      transform: [{rotate: props.balanceDiff < 0 ? '0deg' : '180deg'}],*/}
+      {/*      ...styles.arrowStyle,*/}
+      {/*    }}*/}
+      {/*  />*/}
+      {/*  <Text*/}
+      {/*    style={*/}
+      {/*      props.balanceDiff < 0*/}
+      {/*        ? styles.balanceDiffMinus*/}
+      {/*        : styles.balanceDiffPlus*/}
+      {/*    }>*/}
+      {/*    {props.balanceDiff.toFixed(2)} %*/}
+      {/*  </Text>*/}
+      {/*</View>*/}
     </View>
   );
 }
 
+//new Intl.NumberFormat('en-US', {
+//                   currency: exchangeRates.currency,
+//                   minimumFractionDigits: 2,
+//                   maximumFractionDigits: 2,
+//                 }).format(
+//                   PriceConverter(
+//                     balance,
+//                     exchangeRates.currency,
+//                     exchangeRates.rates,
+//                   ),
+//                 )}
 const styles = StyleSheet.create({
   balanceTotalAndCurrency: {
     flexDirection: 'row',

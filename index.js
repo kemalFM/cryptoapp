@@ -14,11 +14,13 @@ import 'intl';
 import 'intl/locale-data/jsonp/en';
 import TopQRScan from './src/AppComponents/Components/TopQRScan';
 import SettingsPage from "./src/AppComponents/Settings";
+import ExitHolder from "./src/AppComponents/ExitHolder";
 
 Navigation.registerComponent('de.kfm.WelcomeScreen', () => WelcomeScreen);
 Navigation.registerComponent('de.kfm.QRCodeScanner', () => QRCodeScanner);
 Navigation.registerComponent('de.kfm.HomeScreen', () => HomeScreen);
 Navigation.registerComponent('de.kfm.Settings', () => SettingsPage);
+Navigation.registerComponent('de.kfm.exit', () => ExitHolder);
 Navigation.registerComponent(
   'de.kfm.TransactionsScreenTab',
   () => Transactions,

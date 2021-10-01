@@ -5,6 +5,7 @@
 
 import React, {useCallback, useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -14,6 +15,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
+import QRCodeSVG from '../assets/qr.svg';
 import DogeCoinSVG from '../assets/dogecoin.svg';
 import {setRoot, showModal} from 'react-native-navigation-hooks';
 import ValidateWallet from '../Repositories/ValidateWallet';
@@ -90,7 +92,9 @@ function WelcomeScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <DogeCoinSVG style={styles.logo} />
 
-        <Text style={styles.headline}>{I18N('welcomeScreen.headlineTitle', language)}</Text>
+        <Text style={styles.headline}>
+          {I18N('welcomeScreen.headlineTitle', language)}
+        </Text>
 
         <Text style={styles.headlineText}>
           {I18N('welcomeScreen.headlineText', language)}
@@ -99,11 +103,12 @@ function WelcomeScreen() {
         <TextInput
           onChangeText={setWalletID}
           style={styles.walletIDInput}
+          placeholderTextColor={'#000000'}
           placeholder={I18N('welcomeScreen.enterWallet', language)}
         />
 
         <TouchableOpacity
-          style={styles.buttonHolder}
+          style={styles.qrCodeButton}
           onPress={
             walletID === ''
               ? () =>
@@ -113,9 +118,9 @@ function WelcomeScreen() {
               : () => checkWalletID()
           }>
           {walletID === '' ? (
-            <Text style={styles.buttonText}>{I18N('welcomeScreen.scan', language)}</Text>
+            <QRCodeSVG />
           ) : (
-            <Text style={styles.buttonText}>{I18N('welcomeScreen.continue', language)}</Text>
+            <ActivityIndicator color="#fff" size="large" />
           )}
         </TouchableOpacity>
       </KeyboardAvoidingView>
@@ -124,6 +129,15 @@ function WelcomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  qrCodeButton: {
+    borderRadius: 60,
+    height: 60,
+    width: 60,
+    backgroundColor: '#212121',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
   viewHolder: {
     justifyContent: 'center',
     alignContent: 'center',
@@ -152,6 +166,7 @@ const styles = StyleSheet.create({
   },
   walletIDInput: {
     borderWidth: 1,
+    color: "#000000",
     borderColor: '#212121',
     width: '90%',
     height: 42,

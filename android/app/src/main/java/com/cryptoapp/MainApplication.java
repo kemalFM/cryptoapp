@@ -12,6 +12,7 @@ import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
+import androidx.appcompat.app.AppCompatDelegate;
 
 public class MainApplication extends NavigationApplication {
 
@@ -48,6 +49,7 @@ public class MainApplication extends NavigationApplication {
     super.onCreate();
 
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
   }
 
   /**

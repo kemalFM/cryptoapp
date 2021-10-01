@@ -23,8 +23,8 @@ import {GetMultipleTransactionInfo} from '../Repositories/GetTransactionInfo';
 import {SaveTransactionInfo} from '../FileOperations/SaveTransactionInfo';
 import GetExchangeRates from '../Repositories/ExchangeRates';
 import {useExchangeRates} from '../State/ExchangeRates';
-import { I18N } from "../I18N/I18N";
-import { useLanguageState } from "../State/LanguageState";
+import {I18N} from '../I18N/I18N';
+import {useLanguageState} from '../State/LanguageState';
 
 function LoadingTransactions() {
   const language = useLanguageState(state => state.language);
@@ -38,7 +38,11 @@ function LoadingTransactions() {
     /**
      * Sending request to the endpoint in order to check if we already have the wallet or not.
      */
-    let getWalletDetails = await GetTransactions(walletState.id, 1, 0);
+    let getWalletDetails = await GetTransactions(walletState.id, 1, 0).catch(
+      err => {
+        console.log(err, 'getWalletDetails');
+      },
+    );
 
     if (getWalletDetails !== false) {
       getWalletDetails = getWalletDetails as Wallet;
@@ -47,7 +51,9 @@ function LoadingTransactions() {
         getWalletDetails.data[walletState.id].address.transaction_count,
       );
       //Reading wallet details from storage to compare and check if we have the details correctly or not
-      let walletData = await ReadWalletDetails(walletState.id);
+      let walletData = await ReadWalletDetails(walletState.id).catch(err => {
+        console.log(err, 'readWalletDetails');
+      });
 
       //If we have the wallet data in storage this part will be working
       if (walletData !== false) {
@@ -62,7 +68,9 @@ function LoadingTransactions() {
           await SaveWalletDetails(
             walletState.id,
             getWalletDetails.data[walletState.id].address,
-          );
+          ).catch(err => {
+            console.log(err, 'saveWalletDetails');
+          });
           await setRoot(AppComponentRoutes);
         } else {
           // When user has some new transactions since their last login this part will be working, sending request to the endpoint retrieving new transactions and storing them.
@@ -71,7 +79,9 @@ function LoadingTransactions() {
             getWalletDetails.data[walletState.id].address.transaction_count -
               walletData.transaction_count,
             0,
-          );
+          ).catch(err => {
+            console.log(err, 'getNewTransactions');
+          });
           getNewTransactions = getNewTransactions as Wallet;
 
           let transactionList =
@@ -82,7 +92,9 @@ function LoadingTransactions() {
           await SaveWalletDetails(
             walletState.id,
             getNewTransactions.data[walletState.id].address,
-          );
+          ).catch(err => {
+            console.log(err, 'saveWalletDetails line 96');
+          });
 
           setGettingTransactionsInfo(true);
           setLoaded(0);
@@ -102,13 +114,17 @@ function LoadingTransactions() {
           walletState.id,
           1000,
           0,
-        );
+        ).catch(err => {
+          console.log(err, 'firstThousandTransaction');
+        });
         firstThousandTransaction = firstThousandTransaction as Wallet;
         let loadTotal = 0;
         await SaveTransactions(
           walletState.id,
           firstThousandTransaction.data[walletState.id].transactions,
-        ).catch(() => undefined);
+        ).catch(err => {
+          console.log(err, 'saveTransactions line 126');
+        });
         setLoaded(
           loadTotal +
             firstThousandTransaction.data[walletState.id].transactions.length,
@@ -126,14 +142,18 @@ function LoadingTransactions() {
             walletState.id,
             1000,
             offset,
-          );
+          ).catch(err => {
+            console.log(err, 'transactions line 138');
+          });
 
           if (transactions !== false) {
             transactions = transactions as Wallet;
             await SaveTransactions(
               walletState.id,
               transactions.data[walletState.id].transactions,
-            ).catch(() => undefined);
+            ).catch(err => {
+              console.log(err, 'line 155');
+            });
             setLoaded(
               loadTotal + transactions.data[walletState.id].transactions.length,
             );
@@ -144,13 +164,17 @@ function LoadingTransactions() {
         await SaveWalletDetails(
           walletState.id,
           firstThousandTransaction.data[walletState.id].address,
-        );
+        ).catch(err => {
+          console.log(err, 'saveWalletDetails line 166');
+        });
 
         setGettingTransactionsInfo(true);
         setLoaded(0);
         setTransactionCount(0);
         //After everything is finished we are loading transaction details
-        await loadTransactionDetails();
+        await loadTransactionDetails().catch(err =>
+          console.log(err, 'loadtra'),
+        );
 
         await setRoot(AppComponentRoutes);
       }
@@ -168,13 +192,19 @@ function LoadingTransactions() {
         let onlyHashList: string[] = [];
         if (transactionsToGet === undefined) {
           const transactionList = await ReadTransactions(walletState.id);
+
           if (transactionList === false) {
+            resolve();
             return;
           }
-          transactionList.splice(100, transactionList.length);
+          const firstTransaction = transactionList[transactionList.length - 1];
+          transactionList.splice(99, transactionList.length);
           onlyHashList = transactionList.map(transaction => {
             return transaction.hash;
           });
+          if(firstTransaction !== undefined){
+              onlyHashList.push(firstTransaction.hash);
+          }
         } else {
           onlyHashList = transactionsToGet;
         }
@@ -193,21 +223,25 @@ function LoadingTransactions() {
         let totalLoaded = 0;
 
         hashSplit.forEach(tenTransactionHash => {
-          GetMultipleTransactionInfo(tenTransactionHash).then(data => {
-            if (data !== false) {
-              setLoaded(totalLoaded + tenTransactionHash.length);
-              totalLoaded += tenTransactionHash.length;
-              tenTransactionHash.forEach(hash => {
-                SaveTransactionInfo(hash, data.data[hash]);
-              });
-            } else {
-              setLoaded(totalLoaded + tenTransactionHash.length);
-              totalLoaded += tenTransactionHash.length;
-            }
-            if (totalLoaded >= totalTransactions) {
-              resolve();
-            }
-          });
+          GetMultipleTransactionInfo(tenTransactionHash)
+            .then(data => {
+              if (data !== false) {
+                setLoaded(totalLoaded + tenTransactionHash.length);
+                totalLoaded += tenTransactionHash.length;
+                tenTransactionHash.forEach(hash => {
+                  SaveTransactionInfo(hash, data.data[hash]).catch(err =>
+                    console.log('multierr line 224', err),
+                  );
+                });
+              } else {
+                setLoaded(totalLoaded + tenTransactionHash.length);
+                totalLoaded += tenTransactionHash.length;
+              }
+              if (totalLoaded >= totalTransactions) {
+                resolve();
+              }
+            })
+            .catch(err => console.log('multierr line 233', err));
         });
       });
     },
@@ -222,8 +256,10 @@ function LoadingTransactions() {
   }, [exchangeRatesState]);
 
   useEffect(() => {
-    getTransactions().then(undefined);
-    loadExchangeRates().then(undefined);
+    getTransactions()
+      .then(undefined)
+      .catch(co => console.log(co));
+    loadExchangeRates().catch(co => console.log(co));
   }, [walletState]);
 
   // Calculating percentage for total transactions we have saved / total transactions (saved*100/totalTransactions)

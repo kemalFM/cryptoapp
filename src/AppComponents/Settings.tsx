@@ -40,7 +40,7 @@ function SettingsPage(props: {componentId: string}) {
         {text: I18N('settings.logout.no', language.language), style: 'cancel'},
       ],
     );
-  }, []);
+  }, [language]);
 
   const onLanguageChangeRequest = useCallback(() => {
     Alert.alert(
@@ -70,7 +70,7 @@ function SettingsPage(props: {componentId: string}) {
         },
       ],
     );
-  }, []);
+  }, [language]);
 
   return (
     <View style={styles.bodyHolder}>

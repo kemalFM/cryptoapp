@@ -10,7 +10,7 @@ type ExchangeRatesStateType = {
 
 export const useExchangeRates = create<ExchangeRatesStateType>(set => ({
   rates: [],
-  currency: 'USD',
+  currency: 'EUR',
   setRates: rates => set({rates}),
   setCurrency: currency => set({currency})
 }));

@@ -13,6 +13,7 @@ import {useDogePrices} from '../../State/DogePrices';
 import PriceConverter from './PriceConverter';
 import {useLanguageState} from '../../State/LanguageState';
 import {I18N} from '../../I18N/I18N';
+import NumberFormat from 'react-number-format';
 
 export default function TaxFreeCalculator() {
   const language = useLanguageState(state => state.language);
@@ -42,7 +43,7 @@ export default function TaxFreeCalculator() {
      */
     const readTransactions = await ReadTransactions(walletInfo.id);
 
-    if (!readTransactions) {
+    if (readTransactions === false) {
       setLoading(false);
       return;
     }
@@ -129,21 +130,22 @@ export default function TaxFreeCalculator() {
     <View style={styles.holder}>
       <Text style={styles.taxFree}>{I18N('taxFree.total', language)}</Text>
       <Text style={styles.text}>
-        {loading
-          ? I18N('taxFree.calculating', language)
-          : new Intl.NumberFormat('en-US', {
-              currency: exchangeRates.currency,
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }).format(
-              PriceConverter(
-                totalFreeInUSD,
-                exchangeRates.currency,
-                exchangeRates.rates,
-              ),
-            ) +
-            ' ' +
-            exchangeRates.currency}
+        {loading ? (
+          I18N('taxFree.calculating', language)
+        ) : (
+          <NumberFormat
+            value={PriceConverter(
+              totalFreeInUSD,
+              exchangeRates.currency,
+              exchangeRates.rates,
+            )}
+            displayType={'text'}
+            thousandSeparator={exchangeRates.currency === 'EUR' ? '.' : ','}
+            decimalSeparator={exchangeRates.currency === 'EUR' ? ',' : '.'}
+            decimalScale={2}
+            renderText={text => <Text style={styles.text}>{text} {exchangeRates.currency}</Text>}
+          />
+        )}
       </Text>
       <Text style={styles.text}>
         {loading
@@ -153,7 +155,19 @@ export default function TaxFreeCalculator() {
     </View>
   );
 }
-
+// new Intl.NumberFormat('en-US', {
+//   currency: exchangeRates.currency,
+//   minimumFractionDigits: 2,
+//   maximumFractionDigits: 2,
+// }).format(
+//   PriceConverter(
+//     totalFreeInUSD,
+//     exchangeRates.currency,
+//     exchangeRates.rates,
+//   ),
+// ) +
+// ' ' +
+// exchangeRates.currency
 const styles = StyleSheet.create({
   taxFree: {
     textAlign: 'center',

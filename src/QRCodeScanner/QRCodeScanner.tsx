@@ -13,6 +13,7 @@ import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import CloseSVG from '../assets/close.svg';
 import {useLanguageState} from '../State/LanguageState';
 import {I18N} from '../I18N/I18N';
+import { ScannerQRFinder } from "./ScannerQR";
 
 type Props = {
   componentId: string;
@@ -93,6 +94,12 @@ function QRCodeScanner(props: Props) {
           </Text>
         </View>
       )}
+      <ScannerQRFinder
+        width={250}
+        height={250}
+        borderColor={'#000'}
+        borderWidth={2}
+      />
     </RNCamera>
   );
 }

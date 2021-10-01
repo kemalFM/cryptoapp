@@ -13,6 +13,8 @@ import CalculateTransactionValue from './CalculateTransactionValue';
 import {TransactionInfo} from '../../Repositories/TransactionInfoType';
 import {I18N} from '../../I18N/I18N';
 import {useLanguageState} from '../../State/LanguageState';
+import PriceConverter from './PriceConverter';
+import NumberFormat from 'react-number-format';
 
 export default function Transaction(props: {
   status: boolean;
@@ -87,13 +89,20 @@ export default function Transaction(props: {
 
         <View style={styles.transactionTotalAndCurrencyHolder}>
           <Text style={styles.transactionAmount}>
-            {totalInUSD === 0
-              ? '...'
-              : new Intl.NumberFormat('en-US', {
-                  currency: 'USD',
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }).format(totalInUSD)}
+            {totalInUSD === 0 ? (
+              '...'
+            ) : (
+              <NumberFormat
+                value={totalInUSD}
+                displayType={'text'}
+                thousandSeparator={','}
+                decimalSeparator={'.'}
+                decimalScale={2}
+                renderText={text => (
+                  <Text style={styles.transactionAmount}>{text}</Text>
+                )}
+              />
+            )}
           </Text>
           <Text style={styles.transactionCurrency}>USD</Text>
         </View>
@@ -101,7 +110,11 @@ export default function Transaction(props: {
     </TouchableOpacity>
   );
 }
-
+// new Intl.NumberFormat('en-US', {
+//   currency: 'USD',
+//   minimumFractionDigits: 2,
+//   maximumFractionDigits: 2,
+// }).format(totalInUSD)}
 const styles = StyleSheet.create({
   transactionTime: {
     fontSize: 13,

@@ -22,31 +22,31 @@ export const AppComponentRoutes: LayoutRoot = {
             },
           },
         },
-        {
-          stack: {
-            id: 'de.kfm.TransactionsScreenTabComponent',
-            children: [
-              {
-                component: {
-                  name: 'de.kfm.TransactionsScreenTab',
-                },
-              },
-            ],
-            options: {
-              topBar: {
-                searchBar: {
-                  visible: true,
-                  hideOnScroll: true,
-                  hideTopBarOnFocus: true
-                }
-              },
-              bottomTab: {
-                text: 'Transactions',
-                icon: require('./src/assets/money.png'),
-              },
-            },
-          },
-        },
+        // {
+        //   stack: {
+        //     id: 'de.kfm.TransactionsScreenTabComponent',
+        //     children: [
+        //       {
+        //         component: {
+        //           name: 'de.kfm.TransactionsScreenTab',
+        //         },
+        //       },
+        //     ],
+        //     options: {
+        //       topBar: {
+        //         searchBar: {
+        //           visible: true,
+        //           hideOnScroll: true,
+        //           hideTopBarOnFocus: true
+        //         }
+        //       },
+        //       bottomTab: {
+        //         text: 'Transactions',
+        //         icon: require('./src/assets/money.png'),
+        //       },
+        //     },
+        //   },
+        // },
         {
           stack: {
             id: 'de.kfm.Settings',
@@ -72,6 +72,25 @@ export const AppComponentRoutes: LayoutRoot = {
             },
           },
         },
+        {
+          stack: {
+            id: 'de.kfm.exit',
+            children: [
+              {
+                component: {
+                  name: 'de.kfm.exit',
+                }
+              }
+            ],
+            options: {
+              bottomTab: {
+                selectTabOnPress: false,
+                text: 'Exit',
+                icon: require('./src/assets/exit.png')
+              }
+            }
+          }
+        }
       ],
     },
   },

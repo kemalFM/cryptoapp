@@ -9,21 +9,23 @@
 
 import React, {useCallback, useEffect, useState} from 'react';
 import {
+  Alert, Linking,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Switch,
   Text,
   TouchableOpacity,
-  View,
-} from 'react-native';
+  View
+} from "react-native";
 import {Options} from 'react-native-navigation/lib/src/interfaces/Options';
 import TopBalance from './Components/TopBalance';
 import Transaction from './Components/Transaction';
 import {
+  setRoot,
   useNavigation,
-  useNavigationSearchBarUpdate,
-} from 'react-native-navigation-hooks';
+  useNavigationSearchBarUpdate
+} from "react-native-navigation-hooks";
 import {useWallet} from '../State/WalletState';
 import {ReadTransactions} from '../FileOperations/ReadTransactions';
 import {TransactionType} from '../Repositories/WalletType';
@@ -36,6 +38,10 @@ import {useExchangeRates} from '../State/ExchangeRates';
 import ProfitCalculator from './Components/ProfitCalculator';
 import {useLanguageState} from '../State/LanguageState';
 import {I18N} from '../I18N/I18N';
+import BalanceShower from "./Components/BalanceShower";
+import { removeWalletID } from "../State/WalletStore";
+import { AppStartRoot } from "../../AppRoutes";
+import PlusSVG from '../assets/plus.svg';
 
 type Props = {
   componentId: string;
@@ -53,10 +59,8 @@ function HomeScreen(props: Props) {
   const [stats, setStats] = useState<StatsType | null>(null);
 
   const [activeTab, setActiveTab] = useState<'profit' | 'tax' | 'doge' | 'usd'>(
-    'usd',
+    'doge',
   );
-
-  const [activeInnerTab, setActiveInnerTab] = useState<'doge' | 'usd'>('doge');
 
   useEffect(() => {
     navigation.mergeOptions({
@@ -64,6 +68,9 @@ function HomeScreen(props: Props) {
         title: {
           text: I18N('homeScreen.topText', language),
         },
+        subtitle: {
+          text: walletState.id,
+        }
       },
       bottomTab: {
         text: I18N('navigation.home', language)
@@ -72,11 +79,17 @@ function HomeScreen(props: Props) {
   }, [language, navigation]);
 
   useEffect(() => {
+    const resData: TransactionType[] = [];
     ReadTransactions(walletState.id).then(response => {
       if (response !== false) {
-        response.splice(5, response.length);
+        if (response.length > 2) {
+          resData.push(response[0]);
+          resData.push(response[response.length - 1]);
+        } else if (response.length === 1) {
+          resData.push(response[0]);
+        }
         setLastTransactions(
-          response.map(transaction => {
+          resData.map(transaction => {
             const balanceLength = transaction.balance_change.toString().length;
             const splitBalance =
               transaction.balance_change
@@ -116,7 +129,6 @@ function HomeScreen(props: Props) {
           <Switch
             onValueChange={status => {
               exchangeRates.setCurrency(status ? 'USD' : 'EUR');
-              setActiveInnerTab('usd');
             }}
             value={exchangeRates.currency === 'USD'}
           />
@@ -125,75 +137,17 @@ function HomeScreen(props: Props) {
 
         {(activeTab === 'usd' || activeTab === 'doge') && (
           <React.Fragment>
-            {activeInnerTab === 'doge' ? (
-              <React.Fragment>
-                <TopBalance
-                  type="doge"
-                  balanceDiff={
-                    stats === null
-                      ? 0
-                      : stats.data.market_price_usd_change_24h_percentage
-                  }
-                />
-                <TotalChart type="doge" />
-              </React.Fragment>
-            ) : (
-              <React.Fragment>
-                <TopBalance
-                  type="usd"
-                  balanceDiff={
-                    stats === null
-                      ? 0
-                      : stats.data.market_price_usd_change_24h_percentage
-                  }
-                />
-                <TotalChart type="usd" />
-              </React.Fragment>
-            )}
-
-            <View style={styles.tabInnerHolder}>
-              <TouchableOpacity
-                activeOpacity={0.5}
-                onPress={() => {
-                  setActiveInnerTab('doge');
-                  setActiveTab('doge');
-                }}
-                style={
-                  activeInnerTab === 'doge'
-                    ? styles.tabActiveInner
-                    : styles.tabInner
-                }>
-                <Text
-                  style={
-                    activeInnerTab === 'doge'
-                      ? styles.tabTextActiveInner
-                      : styles.tabTextInner
-                  }>
-                  {I18N('homeScreen.balanceDoge', language)}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                activeOpacity={0.5}
-                onPress={() => {
-                  setActiveInnerTab('usd');
-                  setActiveTab('usd');
-                }}
-                style={
-                  activeInnerTab === 'usd'
-                    ? styles.tabActiveInner
-                    : styles.tabInner
-                }>
-                <Text
-                  style={
-                    activeInnerTab === 'usd'
-                      ? styles.tabTextActiveInner
-                      : styles.tabTextInner
-                  }>
-                  {I18N('homeScreen.balance', language)}{' '}
-                  {exchangeRates.currency}
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <React.Fragment>
+              <TopBalance
+                type="doge"
+                balanceDiff={
+                  stats === null
+                    ? 0
+                    : stats.data.market_price_usd_change_24h_percentage
+                }
+              />
+              <BalanceShower />
+            </React.Fragment>
           </React.Fragment>
         )}
 
@@ -228,6 +182,23 @@ function HomeScreen(props: Props) {
         <View style={styles.tabsHolder}>
           <TouchableOpacity
             activeOpacity={0.5}
+            onPress={() => setActiveTab('usd')}
+            style={
+              activeTab === 'usd' || activeTab === 'doge'
+                ? styles.tabActive
+                : styles.tab
+            }>
+            <Text
+              style={
+                activeTab === 'usd' || activeTab === 'doge'
+                  ? styles.tabTextActive
+                  : styles.tabText
+              }>
+              {I18N('homeScreen.balance', language)}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.5}
             onPress={() => setActiveTab('profit')}
             style={activeTab === 'profit' ? styles.tabActive : styles.tab}>
             <Text
@@ -248,56 +219,39 @@ function HomeScreen(props: Props) {
               {I18N('homeScreen.taxFree', language)}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.5}
-            onPress={() => setActiveTab('usd')}
-            style={
-              activeTab === 'usd' || activeTab === 'doge'
-                ? styles.tabActive
-                : styles.tab
-            }>
-            <Text
-              style={
-                activeTab === 'usd' || activeTab === 'doge'
-                  ? styles.tabTextActive
-                  : styles.tabText
-              }>
-              {I18N('homeScreen.balance', language)}
-            </Text>
-          </TouchableOpacity>
+
         </View>
 
-        <Text style={styles.transactionText}>{I18N('homeScreen.last5', language)}</Text>
-        {lastTransactions.map(transaction => (
-          <Transaction
-            key={transaction.hash}
-            transaction={transaction}
-            status={transaction.balance_change >= 0}
-            navigation={navigation}
-          />
-        ))}
-        <TouchableOpacity
-          style={styles.buttonHolder}
-          onPress={() =>
-            navigation.mergeOptions({
-              bottomTabs: {
-                currentTabIndex: 1,
-              },
-            })
-          }>
-          <Text style={styles.buttonText}>
-            {I18N('homeScreen.showMore', language)}
-          </Text>
-        </TouchableOpacity>
+        {lastTransactions.length > 0 ? (
+          <React.Fragment>
+            <Text style={styles.transactionText}>{I18N('homeScreen.lastTransaction', language)}</Text>
+            <Transaction
+              key={lastTransactions[0].hash}
+              transaction={lastTransactions[0]}
+              status={lastTransactions[0].balance_change >= 0}
+              navigation={navigation}
+            />
+            <Text style={styles.transactionText}>{I18N('homeScreen.firstTransaction', language)}</Text>
+            {lastTransactions[1] !== undefined && (
+              <Transaction
+                key={lastTransactions[1].hash}
+                transaction={lastTransactions[1]}
+                status={lastTransactions[1].balance_change >= 0}
+                navigation={navigation}
+              />
+            )}
 
-        <DogePriceChart
-          balanceDiff={
-            stats === null
-              ? 0
-              : stats.data.market_price_usd_change_24h_percentage
-          }
-          currentPrice={stats === null ? 0 : stats.data.market_price_usd}
-        />
+            <TouchableOpacity
+              style={styles.showMoreButton}
+              onPress={() =>
+                Linking.openURL('https://blockchair.com/dogecoin/address/'+walletState.id)
+              }>
+             <PlusSVG fill={"#fff"} width={25} height={25} />
+            </TouchableOpacity>
+          </React.Fragment>
+        ): (
+          <Text style={styles.noTransactionText}>{I18N('homeScreen.noTransactionFound', language)}</Text>
+          )}
 
         <View style={styles.fixScrollHeight} />
       </ScrollView>
@@ -306,6 +260,16 @@ function HomeScreen(props: Props) {
 }
 
 const styles = StyleSheet.create({
+  showMoreButton: {
+    alignSelf: "center",
+    borderRadius: 60,
+    height: 60,
+    width: 60,
+    backgroundColor: '#212121',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
   buttonHolder: {
     textAlign: 'center',
     width: '100%',
@@ -323,6 +287,15 @@ const styles = StyleSheet.create({
   },
   fixScrollHeight: {
     height: 50,
+  },
+  noTransactionText: {
+    fontSize: 28,
+    textAlign: "center",
+    lineHeight: 41,
+    marginTop: 20,
+    color: '#212121',
+    fontWeight: 'bold',
+    marginVertical: 10,
   },
   transactionText: {
     fontSize: 30,
@@ -407,7 +380,7 @@ const styles = StyleSheet.create({
 HomeScreen.options = {
   topBar: {
     title: {
-      text: 'Crypto Brand',
+      text: 'Wallet ID',
     },
   },
 } as Options;

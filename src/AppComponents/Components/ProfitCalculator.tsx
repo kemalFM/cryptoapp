@@ -10,14 +10,17 @@ import {ReadWallet} from '../../FileOperations/ReadWalletDetails';
 import {useWallet} from '../../State/WalletState';
 import {useExchangeRates} from '../../State/ExchangeRates';
 import PriceConverter from './PriceConverter';
+import NumberFormat from 'react-number-format';
 import {I18N} from '../../I18N/I18N';
 import {useLanguageState} from '../../State/LanguageState';
+import { AddressType } from "../../Repositories/WalletType";
 
 export default function ProfitCalculator() {
   const language = useLanguageState(state => state.language);
   const [loading, setLoading] = useState(true);
   const [estimatedProfit, setEstimatedProfit] = useState(0);
   const exchangeRates = useExchangeRates();
+  const [walletData, setWalletData] = useState<AddressType | null>(null);
   const walletInfo = useWallet();
 
   /**
@@ -33,6 +36,7 @@ export default function ProfitCalculator() {
       setLoading(false);
       return;
     }
+    setWalletData(readWallet);
     const calculation =
       readWallet.spent_usd - readWallet.received_usd + readWallet.balance_usd;
     setEstimatedProfit(calculation);
@@ -46,29 +50,87 @@ export default function ProfitCalculator() {
   return (
     <View style={styles.holder}>
       <Text style={styles.taxFree}>
-        {I18N('totalEstimatedProfit', language)}
+        {I18N('profitCalculator.totalInvested', language)}
       </Text>
       <Text style={styles.text}>
-        {loading
-          ? I18N('profitCalculator.calculating', language)
-          : new Intl.NumberFormat('en-US', {
-              currency: exchangeRates.currency,
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }).format(
-              PriceConverter(
-                estimatedProfit,
-                exchangeRates.currency,
-                exchangeRates.rates,
-              ),
-            ) +
-            ' ' +
-            exchangeRates.currency}
+      {walletData === null ? (
+        I18N('profitCalculator.calculating', language)
+      ) : (
+        <NumberFormat
+          value={PriceConverter(
+            walletData.received_usd,
+            exchangeRates.currency,
+            exchangeRates.rates,
+          )}
+          displayType={'text'}
+          thousandSeparator={exchangeRates.currency === 'EUR' ? '.' : ','}
+          decimalSeparator={exchangeRates.currency === 'EUR' ? ',' : '.'}
+          decimalScale={2}
+          renderText={text => <Text style={styles.text}>{text} {exchangeRates.currency}</Text>}
+        />
+      )}
+      </Text>
+
+      <Text style={styles.taxFree}>
+        {I18N('profitCalculator.totalCashOut', language)}
+      </Text>
+      <Text style={styles.text}>
+        {walletData === null ? (
+          I18N('profitCalculator.calculating', language)
+        ) : (
+          <NumberFormat
+            value={PriceConverter(
+              walletData.spent_usd,
+              exchangeRates.currency,
+              exchangeRates.rates,
+            )}
+            displayType={'text'}
+            thousandSeparator={exchangeRates.currency === 'EUR' ? '.' : ','}
+            decimalSeparator={exchangeRates.currency === 'EUR' ? ',' : '.'}
+            decimalScale={2}
+            renderText={text => <Text style={styles.text}>{text} {exchangeRates.currency}</Text>}
+          />
+        )}
+      </Text>
+
+      <Text style={styles.taxFree}>
+        {I18N('profitCalculator.estimatedProfit', language)}
+      </Text>
+      <Text style={styles.text}>
+        {loading ? (
+          I18N('profitCalculator.calculating', language)
+        ) : (
+          <NumberFormat
+            value={PriceConverter(
+              estimatedProfit,
+              exchangeRates.currency,
+              exchangeRates.rates,
+            )}
+            displayType={'text'}
+            thousandSeparator={exchangeRates.currency === 'EUR' ? '.' : ','}
+            decimalSeparator={exchangeRates.currency === 'EUR' ? ',' : '.'}
+            decimalScale={2}
+            renderText={text => <Text style={styles.text}>{text}  {exchangeRates.currency}</Text>}
+          />
+        )}
+
       </Text>
     </View>
   );
 }
-
+// new Intl.NumberFormat('de-DE', {
+//   currency: exchangeRates.currency,
+//   minimumFractionDigits: 2,
+//   maximumFractionDigits: 2,
+// }).format(
+//   PriceConverter(
+//     estimatedProfit,
+//     exchangeRates.currency,
+//     exchangeRates.rates,
+//   ),
+// ) +
+// ' ' +
+// exchangeRates.currency
 const styles = StyleSheet.create({
   textSmall: {
     textAlign: 'center',
@@ -78,10 +140,11 @@ const styles = StyleSheet.create({
   taxFree: {
     textAlign: 'center',
     fontSize: 22,
-    paddingBottom: 20,
+    paddingBottom: 5,
+    paddingTop: 5,
   },
   text: {
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: 'bold',
     textAlign: 'center',
     alignSelf: 'center',
