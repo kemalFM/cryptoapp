@@ -14,6 +14,7 @@ import PriceConverter from './PriceConverter';
 import {useLanguageState} from '../../State/LanguageState';
 import {I18N} from '../../I18N/I18N';
 import NumberFormat from 'react-number-format';
+import { GetPrices } from "../../Repositories/GetStats";
 
 export default function TaxFreeCalculator() {
   const language = useLanguageState(state => state.language);
@@ -23,6 +24,17 @@ export default function TaxFreeCalculator() {
   const exchangeRates = useExchangeRates();
   const dogePrices = useDogePrices();
   const walletInfo = useWallet();
+
+  /**
+   * Getting latest doge prices.
+   */
+  useEffect(() => {
+    GetPrices().then(response => {
+      if (response) {
+        dogePrices.setPrices(response);
+      }
+    });
+  }, []);
 
   /**
    * Calculates the tax free in dogecoins and in USD or EUR currencies
@@ -107,6 +119,7 @@ export default function TaxFreeCalculator() {
         setTotalFreeInUSD(0);
       } else {
         setTotalFree(olderThanAYear);
+        console.log(olderThanAYear, 'ol', dogePrices.prices)
         if (dogePrices.prices !== null) {
           const latestPriceInUSD =
             dogePrices.prices.data[dogePrices.prices.data.length - 1][
@@ -130,7 +143,7 @@ export default function TaxFreeCalculator() {
     <View style={styles.holder}>
       <Text style={styles.taxFree}>{I18N('taxFree.total', language)}</Text>
       <Text style={styles.text}>
-        {loading ? (
+        {(loading || dogePrices.prices === null) ? (
           I18N('taxFree.calculating', language)
         ) : (
           <NumberFormat
