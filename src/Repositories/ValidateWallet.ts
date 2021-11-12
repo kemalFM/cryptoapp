@@ -20,7 +20,6 @@ export default async function ValidateWallet(
 ): Promise<boolean> {
   // Validating address with crypto tools before sending actual request to API endpoints
   const validateLocally = WAValidator.validate(walletID, 'doge');
-
   if (validateLocally) {
     return await axios
       .get<WalletResponse>(`${DOGE_CHAIN_API}/address/balance/${walletID}`)

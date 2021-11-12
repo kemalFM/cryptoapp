@@ -15,7 +15,7 @@ import {AddressType, Wallet} from '../Repositories/WalletType';
 import {SaveTransactions} from '../FileOperations/SaveTransactions';
 import {ReadWalletDetails} from '../FileOperations/ReadWalletDetails';
 import {setRoot} from 'react-native-navigation-hooks';
-import {AppComponentRoutes} from '../../AppRoutes';
+import { AppComponentRoutes, AppStartRoot } from "../../AppRoutes";
 import {SaveWalletDetails} from '../FileOperations/SaveWalletDetails';
 import DogeSVG from '../assets/dogecoin.svg';
 import {ReadTransactions} from '../FileOperations/ReadTransactions';
@@ -25,6 +25,7 @@ import GetExchangeRates from '../Repositories/ExchangeRates';
 import {useExchangeRates} from '../State/ExchangeRates';
 import {I18N} from '../I18N/I18N';
 import {useLanguageState} from '../State/LanguageState';
+import { removeWalletID } from "../State/WalletStore";
 
 function LoadingTransactions() {
   const language = useLanguageState(state => state.language);
@@ -44,6 +45,8 @@ function LoadingTransactions() {
       },
     );
 
+    console.log(getWalletDetails, walletState.id);
+
     if (getWalletDetails !== false) {
       getWalletDetails = getWalletDetails as Wallet;
 
@@ -59,6 +62,7 @@ function LoadingTransactions() {
       if (walletData !== false) {
         walletData = walletData as AddressType;
 
+        console.log(walletData);
         //Checking if the app has the correct amount of transactions to understand if there is new transactions.
         if (
           walletData.transaction_count ===
@@ -117,6 +121,7 @@ function LoadingTransactions() {
         ).catch(err => {
           console.log(err, 'firstThousandTransaction');
         });
+        console.log(firstThousandTransaction);
         firstThousandTransaction = firstThousandTransaction as Wallet;
         let loadTotal = 0;
         await SaveTransactions(
@@ -183,6 +188,8 @@ function LoadingTransactions() {
         I18N('error', language),
         I18N('loadingTransactions.errorConnection', language),
       );
+      await removeWalletID();
+      await setRoot(AppStartRoot);
     }
   }, [walletState, language]);
 

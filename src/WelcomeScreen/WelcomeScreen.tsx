@@ -6,15 +6,15 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {
   ActivityIndicator,
-  Alert,
+  Alert, Image,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
-} from 'react-native';
+  TouchableOpacity
+} from "react-native";
 import QRCodeSVG from '../assets/qr.svg';
 import DogeCoinSVG from '../assets/dogecoin.svg';
 import {setRoot, showModal} from 'react-native-navigation-hooks';
@@ -39,7 +39,9 @@ function WelcomeScreen() {
         walletString = walletIDQR;
       }
 
+      walletString = walletString.replace("dogecoin:", '');
       const checkWallet = await ValidateWallet(walletString);
+      console.log(checkWallet, 'fail', walletString)
       if (walletIDQR !== undefined) {
         if (checkWallet) {
           await storeWalletID(walletString);
@@ -52,7 +54,7 @@ function WelcomeScreen() {
           Alert.alert(
             I18N('QRScanner.walletNotFound', language),
             I18N('QRScanner.weCouldNotVerify', language, [
-              {key: 'type', value: I18N('QR.Scanner.wallet', language)},
+              {key: 'type', value: I18N('QRScanner.wallet', language)},
             ]),
           );
           return;
@@ -90,7 +92,7 @@ function WelcomeScreen() {
       <KeyboardAvoidingView
         style={styles.viewHolder}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <DogeCoinSVG style={styles.logo} />
+        <Image source={require('../assets/rocketLogo.png')} style={styles.logo} />
 
         <Text style={styles.headline}>
           {I18N('welcomeScreen.headlineTitle', language)}
@@ -146,8 +148,8 @@ const styles = StyleSheet.create({
     padding: 30,
   },
   logo: {
-    width: 50,
-    height: 50,
+    width: 100,
+    height: 100,
     justifyContent: 'center',
     alignSelf: 'center',
     marginBottom: 20,

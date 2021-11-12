@@ -57,6 +57,7 @@ PODS:
     - FlipperKit/Core
     - FlipperKit/FlipperKitNetworkPlugin
   - glog (0.3.5)
+  - HMSegmentedControl (1.5.6)
   - libevent (2.1.12)
   - OpenSSL-Universal (1.1.180)
   - RCT-Folly (2020.01.13.00):
@@ -252,13 +253,13 @@ PODS:
     - React-jsi (= 0.64.1)
     - React-perflogger (= 0.64.1)
   - React-jsinspector (0.64.1)
-  - react-native-camera (3.44.3):
+  - react-native-camera (4.2.1):
     - React-Core
-    - react-native-camera/RCT (= 3.44.3)
-    - react-native-camera/RN (= 3.44.3)
-  - react-native-camera/RCT (3.44.3):
+    - react-native-camera/RCT (= 4.2.1)
+    - react-native-camera/RN (= 4.2.1)
+  - react-native-camera/RCT (4.2.1):
     - React-Core
-  - react-native-camera/RN (3.44.3):
+  - react-native-camera/RN (4.2.1):
     - React-Core
   - React-perflogger (0.64.1)
   - React-RCTActionSheet (0.64.1):
@@ -324,16 +325,18 @@ PODS:
     - React-cxxreact (= 0.64.1)
     - React-jsi (= 0.64.1)
     - React-perflogger (= 0.64.1)
-  - ReactNativeNavigation (7.18.0):
+  - ReactNativeNavigation (7.23.1):
+    - HMSegmentedControl
     - React-Core
     - React-RCTImage
     - React-RCTText
-    - ReactNativeNavigation/Core (= 7.18.0)
-  - ReactNativeNavigation/Core (7.18.0):
+    - ReactNativeNavigation/Core (= 7.23.1)
+  - ReactNativeNavigation/Core (7.23.1):
+    - HMSegmentedControl
     - React-Core
     - React-RCTImage
     - React-RCTText
-  - RNCAsyncStorage (1.15.5):
+  - RNCAsyncStorage (1.15.11):
     - React-Core
   - RNFS (2.18.0):
     - React
@@ -410,6 +413,7 @@ SPEC REPOS:
     - Flipper-PeerTalk
     - Flipper-RSocket
     - FlipperKit
+    - HMSegmentedControl
     - libevent
     - OpenSSL-Universal
     - YogaKit
@@ -496,6 +500,7 @@ SPEC CHECKSUMS:
   Flipper-RSocket: 127954abe8b162fcaf68d2134d34dc2bd7076154
   FlipperKit: 8a20b5c5fcf9436cac58551dc049867247f64b00
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
+  HMSegmentedControl: 34c1f54d822d8308e7b24f5d901ec674dfa31352
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
   RCT-Folly: ec7a233ccc97cc556cf7237f0db1ff65b986f27c
@@ -509,7 +514,7 @@ SPEC CHECKSUMS:
   React-jsi: 5de8204706bd872b78ea646aee5d2561ca1214b6
   React-jsiexecutor: 124e8f99992490d0d13e0649d950d3e1aae06fe9
   React-jsinspector: 500a59626037be5b3b3d89c5151bc3baa9abf1a9
-  react-native-camera: b8cc03e2feec0c04403d0998e37cf519d8fd4c6f
+  react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   React-perflogger: aad6d4b4a267936b3667260d1f649b6f6069a675
   React-RCTActionSheet: fc376be462c9c8d6ad82c0905442fd77f82a9d2a
   React-RCTAnimation: ba0a1c3a2738be224a08092fa7f1b444ab77d309
@@ -522,8 +527,8 @@ SPEC CHECKSUMS:
   React-RCTVibration: 4b99a7f5c6c0abbc5256410cc5425fb8531986e1
   React-runtimeexecutor: ff951a0c241bfaefc4940a3f1f1a229e7cb32fa6
   ReactCommon: bedc99ed4dae329c4fcf128d0c31b9115e5365ca
-  ReactNativeNavigation: f81a4e3d44b761c5bf81a519b6e49845ecdf9440
-  RNCAsyncStorage: 56a3355a10b5d660c48c6e37325ac85ebfd09885
+  ReactNativeNavigation: 3ab7ff832654964985de47c9ee67999e34cd63d8
+  RNCAsyncStorage: eb05c0284dd6b50b32f92fad55e2a41e03358c43
   RNFS: 3ab21fa6c56d65566d1fb26c2228e2b6132e5e32
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   Yoga: a7de31c64fe738607e7a3803e3f591a4b1df7393

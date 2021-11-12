@@ -16,6 +16,12 @@ import TopQRScan from './src/AppComponents/Components/TopQRScan';
 import SettingsPage from "./src/AppComponents/Settings";
 import ExitHolder from "./src/AppComponents/ExitHolder";
 
+if (typeof String.prototype.replaceAll == "undefined") {
+  String.prototype.replaceAll = function(match, replace) {
+    return this.replace(new RegExp(match, 'g'), () => replace);
+  }
+}
+
 Navigation.registerComponent('de.kfm.WelcomeScreen', () => WelcomeScreen);
 Navigation.registerComponent('de.kfm.QRCodeScanner', () => QRCodeScanner);
 Navigation.registerComponent('de.kfm.HomeScreen', () => HomeScreen);
