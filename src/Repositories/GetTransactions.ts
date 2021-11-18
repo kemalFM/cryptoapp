@@ -1,6 +1,7 @@
 import axios from 'axios';
 import {BLOCK_CHAIR_API} from './RepositoryConstants';
 import {Wallet} from './WalletType';
+import { API_KEY } from "../../env";
 
 export default async function GetTransactions(
   walletID: string,
@@ -13,6 +14,7 @@ export default async function GetTransactions(
         transaction_details: true,
         offset: offset,
         limit: limit,
+        key: API_KEY,
       },
     })
     .then(response => {

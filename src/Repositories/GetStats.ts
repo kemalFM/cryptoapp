@@ -2,10 +2,11 @@ import axios from 'axios';
 import {BLOCK_CHAIR_API} from './RepositoryConstants';
 import {StatsType} from './StatsType';
 import {DogePriceType} from './DogePriceType';
+import { API_KEY } from "../../env";
 
 export async function GetStats(): Promise<StatsType | false> {
   return await axios
-    .get<StatsType>(BLOCK_CHAIR_API + '/stats')
+    .get<StatsType>(BLOCK_CHAIR_API + '/stats?key=' + API_KEY)
     .then(response => {
       return response.data;
     })
@@ -16,17 +17,17 @@ export async function GetStats(): Promise<StatsType | false> {
 
 export async function GetPrices(): Promise<DogePriceType | false> {
   const today = new Date().toISOString().replace('T', ' ').split('.')[0];
-  const oneWeekAgo = new Date(
-    new Date().setDate(new Date().getDate() - 7),
-  ).toISOString().replace('T', ' ').split('.')[0];
-
-
+  const oneWeekAgo = new Date(new Date().setDate(new Date().getDate() - 7))
+    .toISOString()
+    .replace('T', ' ')
+    .split('.')[0];
 
   return await axios
     .get<DogePriceType>(BLOCK_CHAIR_API + '/blocks', {
       params: {
         a: 'date,price(doge_usd)',
         q: `time(${oneWeekAgo}..${today})`,
+        key: API_KEY,
       },
     })
     .then(response => {
